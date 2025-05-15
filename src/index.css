@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  
+  /* Primary Blue */
+  --primary: 206 98% 50%;
+  --primary-foreground: 211 100% 99%;
+  
+  /* Accent Green */
+  --accent: 72 100% 50%;
+  --accent-foreground: 0 0% 0%;
+  
+  /* Gray for separation */
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 24 9.8% 10%;
+  
+  /* Other Theme Colors */
+  --success: 142 70% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --danger: 0 84% 60%;
+  --danger-foreground: 0 0% 100%;
+  
+  --textDark: 0 0% 20%;
+  --textLight: 0 0% 54%;
+  
+  --ring: 206 98% 50%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  
+  /* Primary Blue */
+  --primary: 206 98% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Accent Green */
+  --accent: 72 100% 50%;
+  --accent-foreground: 0 0% 0%;
+  
+  /* Gray for separation */
+  --secondary: 240 5% 7%; 
+  --secondary-foreground: 0 0% 98%;
+  
+  /* Other Theme Colors */
+  --success: 142 70% 40%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+  --danger: 0 70% 50%;
+  --danger-foreground: 0 0% 100%;
+  
+  --textDark: 0 0% 95%;
+  --textLight: 0 0% 70%;
+  
+  --ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-montserrat antialiased bg-background text-foreground;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+  
+  /* Transitions */
+  .sidebar-animation {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .page-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Calendar Custom Styles */
+  .calendar-cell {
+    @apply min-h-[100px];
+  }
+  
+  .calendar-event {
+    @apply cursor-pointer transition-all duration-200 ease-in-out;
+  }
+  
+  .calendar-event:hover {
+    @apply transform -translate-y-0.5 shadow-md;
+  }
+}
