@@ -9,7 +9,7 @@ import { UserTable } from "@/components/users/UserTable";
 import { UserCard } from "@/components/users/UserCard";
 import { UserForm } from "@/components/users/UserForm";
 import { Modal, ConfirmModal } from "@/components/ui/modal";
-import { showToast } from "@/lib/toastManager";
+import { toast } from "@/hooks/use-toast";
 import { User } from "@/types";
 import { pageTransition } from "@/lib/animations";
 
@@ -109,24 +109,23 @@ export default function UserManagement() {
     setIsEditModalOpen(true);
   };
   
-  const handleToggleUserStatus = (userId: number) => {
+  const handleToggleUserStatus = (user: User) => {
     setUsers(prevUsers => 
-      prevUsers.map(user => 
-        user.id === userId 
+      prevUsers.map(u => 
+        u.id === user.id 
           ? { 
-              ...user, 
-              status: user.status === "Active" ? "Suspended" : "Active" 
+              ...u, 
+              status: u.status === "Active" ? "Suspended" : "Active" 
             } 
-          : user
+          : u
       )
     );
     
-    const user = users.find(u => u.id === userId);
-    const newStatus = user?.status === "Active" ? "Suspended" : "Active";
+    const newStatus = user.status === "Active" ? "Suspended" : "Active";
     
-    showToast({
+    toast({
       title: "Status Updated",
-      description: `${user?.firstName} ${user?.lastName} is now ${newStatus}`,
+      description: `${user.firstName} ${user.lastName} is now ${newStatus}`,
       variant: newStatus === "Active" ? "success" : "destructive"
     });
   };
@@ -141,7 +140,7 @@ export default function UserManagement() {
     
     setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser.id));
     
-    showToast({
+    toast({
       title: "User Deleted",
       description: `${selectedUser.firstName} ${selectedUser.lastName} has been removed`,
       variant: "destructive"
@@ -171,7 +170,7 @@ export default function UserManagement() {
         );
         setUsers(updatedUsers);
         
-        showToast({
+        toast({
           title: "User Updated",
           description: `${values.firstName} ${values.lastName} has been updated`,
           variant: "success"
@@ -193,18 +192,18 @@ export default function UserManagement() {
         
         setUsers([...users, newUser]);
         
-        showToast({
+        toast({
           title: "User Added",
-          description: `${values.firstName} ${values.lastName} has been added`,
+          description: "The user has been added successfully.",
           variant: "success"
         });
         
         setIsAddModalOpen(false);
       }
     } catch (error) {
-      showToast({
+      toast({
         title: "Error",
-        description: "There was an error processing your request",
+        description: "Failed to add user.",
         variant: "destructive"
       });
     } finally {
@@ -306,8 +305,8 @@ export default function UserManagement() {
           <UserTable 
             users={filteredUsers} 
             onEdit={handleEditUser} 
-            onToggleStatus={handleToggleUserStatus}
-            onDelete={handleDeleteClick}
+            onToggleStatus={(user) => handleToggleUserStatus(user)}
+            onDelete={(user) => handleDeleteClick(user)}
           />
         ) : (
           <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -317,8 +316,8 @@ export default function UserManagement() {
                   key={user.id} 
                   user={user} 
                   onEdit={handleEditUser}
-                  onToggleStatus={handleToggleUserStatus}
-                  onDelete={handleDeleteClick}
+                  onToggleStatus={() => handleToggleUserStatus(user)}
+                  onDelete={() => handleDeleteClick(user)}
                 />
               ))
             ) : (

@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { showToast } from "@/lib/toastManager";
+import { toast } from "@/hooks/use-toast";
 import { Rating } from "@/types";
 import { pageTransition, slideUp, staggerContainer } from "@/lib/animations";
 
@@ -189,10 +189,10 @@ export default function Ratings() {
   ]);
   
   const handleViewDetails = (rating: Rating) => {
-    showToast({ 
-      title: "View Ratings",
-      description: `Viewing details for ${rating.entityName}`,
-      variant: "default"
+    toast({ 
+      title: "Rating Updated",
+      description: "The rating has been updated successfully.",
+      variant: "success"
     });
   };
   

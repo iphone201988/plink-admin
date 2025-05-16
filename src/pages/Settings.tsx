@@ -23,9 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { showToast } from "@/lib/toastManager";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme, Theme } from "@/components/ThemeProvider";
 import { pageTransition, slideUp } from "@/lib/animations";
+import { toast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
@@ -65,26 +65,26 @@ export default function Settings() {
   
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast({
-      title: "Profile Updated",
-      description: "Your profile information has been updated successfully.",
-      variant: "success"
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully.",
+      variant: "default"
     });
   };
   
   const handlePasswordUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast({
-      title: "Password Updated",
-      description: "Your password has been changed successfully.",
-      variant: "success"
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully.",
+      variant: "default"
     });
   };
   
   const handleNotificationUpdate = () => {
-    showToast({
-      title: "Notification Settings Updated",
-      description: "Your notification preferences have been saved.",
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully.",
       variant: "success"
     });
   };
@@ -92,17 +92,17 @@ export default function Settings() {
   const handleAppearanceUpdate = () => {
     setTheme(appearanceSettings.theme as "light" | "dark" | "system");
     
-    showToast({
-      title: "Appearance Settings Updated",
-      description: "Your appearance preferences have been saved.",
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully.",
       variant: "success"
     });
   };
   
   const handleSecurityUpdate = () => {
-    showToast({
-      title: "Security Settings Updated",
-      description: "Your security preferences have been saved.",
+    toast({
+      title: "Settings Saved",
+      description: "Your settings have been saved successfully.",
       variant: "success"
     });
   };
@@ -348,7 +348,7 @@ export default function Settings() {
                       value={appearanceSettings.theme} 
                       onValueChange={(value) => setAppearanceSettings({
                         ...appearanceSettings,
-                        theme: value
+                        theme: value as Theme
                       })}
                       className="flex space-x-4"
                     >

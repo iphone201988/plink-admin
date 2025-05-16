@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { showToast } from "@/lib/toastManager";
+import { toast } from "@/hooks/use-toast";
 import { StaticPage } from "@/types";
 import { pageTransition } from "@/lib/animations";
 
@@ -83,7 +83,7 @@ export default function StaticPages() {
   ]);
   
   const handleEditPage = (page: StaticPage) => {
-    showToast({ 
+    toast({ 
       title: "Edit Page",
       description: `Editing ${page.title}`,
       variant: "default"
@@ -95,7 +95,7 @@ export default function StaticPages() {
     
     setPages(prevPages => prevPages.filter(page => page.id !== pageId));
     
-    showToast({
+    toast({
       title: "Page Deleted",
       description: `${page?.title} has been removed`,
       variant: "destructive"
@@ -117,15 +117,15 @@ export default function StaticPages() {
     const page = pages.find(p => p.id === pageId);
     const newStatus = page?.status === "Published" ? "Draft" : "Published";
     
-    showToast({
+    toast({
       title: "Status Updated",
       description: `${page?.title} is now ${newStatus}`,
-      variant: newStatus === "Published" ? "success" : "default"
+      variant: newStatus === "Published" ? "default" : "destructive"
     });
   };
   
   const handleViewPage = (page: StaticPage) => {
-    showToast({
+    toast({
       title: "View Page",
       description: `Viewing ${page.title}`,
       variant: "default"
@@ -133,7 +133,7 @@ export default function StaticPages() {
   };
   
   const handleAddPage = () => {
-    showToast({
+    toast({
       title: "Add Page",
       description: "Page creation form would open here",
       variant: "default"

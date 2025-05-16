@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { showToast } from "@/lib/toastManager";
+import { toast } from "@/hooks/use-toast";
 import { useDispatch } from "react-redux";
 import { toggleNotificationModal } from "@/store/slices/uiSlice";
 import { Notification } from "@/types";
@@ -116,7 +116,7 @@ export default function Notifications() {
   ]);
   
   const handleViewNotification = (notification: Notification) => {
-    showToast({ 
+    toast({ 
       title: "View Notification",
       description: `Viewing details for "${notification.title}"`,
       variant: "default"
@@ -139,7 +139,7 @@ export default function Notifications() {
       setDraftNotifications(prev => prev.filter(n => n.id !== notificationId));
     }
     
-    showToast({
+    toast({ 
       title: "Notification Deleted",
       description: `"${notification?.title}" has been removed`,
       variant: "destructive"
@@ -147,7 +147,7 @@ export default function Notifications() {
   };
   
   const handleResendNotification = (notification: Notification) => {
-    showToast({
+    toast({
       title: "Notification Resent",
       description: `"${notification.title}" has been resent to recipients`,
       variant: "success"

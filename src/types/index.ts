@@ -125,3 +125,34 @@ export interface DashboardStats {
   eventChange: number;
   ratingChange: number;
 }
+
+export interface SignupRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: number;
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface SignupResponse {
+  success: boolean;
+  message: string;
+  user: AuthUser;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  user: AuthUser;
+}

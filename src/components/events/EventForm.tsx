@@ -69,7 +69,7 @@ export function EventForm({ event, onSubmit, isSubmitting = false }: EventFormPr
     // Remove startTime and endTime as they're now combined in the time field
     const { startTime, endTime, ...finalValues } = formattedValues;
     
-    onSubmit(finalValues);
+    onSubmit({...finalValues, startTime, endTime, date: values.date});
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { showToast } from "@/lib/toastManager";
 import { pageTransition } from "@/lib/animations";
 import Logo from "@/assets/logo.png";
+import { useAdminLoginMutation } from "@/api";
+import { toast } from "@/hooks/use-toast";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,54 +23,99 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [adminLogin] = useAdminLoginMutation();
+
+  // Load remembered email on mount
+  useEffect(() => {
+    const remembered = localStorage.getItem("rememberMe");
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (remembered === "true" && rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     if (!email || !password) {
-      showToast({
+      toast({
         title: "Error",
         description: "Please enter both email and password",
-        variant: "destructive"
+        variant: "destructive",
+        position: "topRight"
       });
       return;
     }
-    
+  
     setIsLoading(true);
-    
     try {
-      // In a real app, this would make an API request to authenticate
-      // For demo purposes, we're simulating a successful login
-      setTimeout(() => {
-        dispatch(login({
-          id: 1,
-          firstName: "Admin",
-          lastName: "User",
-          email: "admin@plink.com",
-          isAuthenticated: true
-        }));
-        
-        showToast({
-          title: "Welcome back!",
-          description: "You have successfully logged in",
-          variant: "success"
+      const res = await adminLogin({ email, password }).unwrap();
+  
+      if (res && res.success && res.user) {
+        const { access_token, refresh_token, role, name, email, _id } = res.user;
+        localStorage.setItem("token", access_token);
+        localStorage.setItem("refresh_token", refresh_token);
+
+        // Remember Me logic
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("rememberedEmail", email);
+        } else {
+          localStorage.removeItem("rememberMe");
+          localStorage.removeItem("rememberedEmail");
+        }
+
+        if (role === 1) {
+          dispatch(
+            login({
+              id: Number(_id),
+              name,
+              email,
+              role: String(role),
+              isAuthenticated: true
+            })
+          );
+  
+          toast({
+            title: "Welcome back!",
+            description: res.message || "You have successfully logged in",
+            variant: "success",
+            position: "topRight"
+          });
+  
+          navigate("/admin/dashboard");
+        } else {
+          toast({
+            title: "Access Restricted",
+            description: "You do not have permission to access the admin dashboard.",
+            variant: "destructive",
+            position: "topRight"
+          });
+        }
+      } else {
+        toast({
+          title: "Login Failed",
+          description: res?.message || "Invalid email or password",
+          variant: "destructive",
+          position: "topRight"
         });
-        
-        navigate("/");
-        setIsLoading(false);
-      }, 1000);
-      
-    } catch (error) {
-      showToast({
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
         title: "Login Failed",
-        description: "Invalid email or password",
-        variant: "destructive"
+        description: error?.data?.message || "Invalid email or password",
+        position: "topRight",
+        variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen flex items-center justify-center bg-secondary p-4"
       variants={pageTransition}
       initial="initial"
@@ -88,7 +134,7 @@ export default function Login() {
               <img src={Logo} alt="Logo" className="h-6 w-6" />
             </div>
             <CardTitle className="text-2xl font-bold">Welcome to Plink</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardDescription>Enter your credentials to access admin account</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -110,9 +156,6 @@ export default function Login() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Button variant="link" className="h-auto p-0 text-sm font-medium text-primary">
-                    Forgot password?
-                  </Button>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
@@ -137,10 +180,10 @@ export default function Login() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="remember" 
-                  checked={rememberMe} 
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)} 
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
                 <label
                   htmlFor="remember"
@@ -157,12 +200,6 @@ export default function Login() {
             </CardFooter>
           </form>
         </Card>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Button variant="link" className="p-0 font-medium text-primary">
-            Request access
-          </Button>
-        </p>
       </motion.div>
     </motion.div>
   );

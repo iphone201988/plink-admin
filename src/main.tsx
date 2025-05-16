@@ -2,7 +2,6 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "@/components/ui/toaster";
 import { ToastContainer } from "@/components/ui/toast-container";
 import { store } from "@/store/store";
 import App from "./App";
@@ -88,7 +87,6 @@ createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <ThemeProvider>
       <RouterProvider router={router} />
-      <Toaster />
       <ToastContainer />
     </ThemeProvider>
   </Provider>
