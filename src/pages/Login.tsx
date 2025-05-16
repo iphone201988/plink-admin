@@ -50,9 +50,9 @@ export default function Login() {
   
     setIsLoading(true);
     try {
-      const res = await adminLogin({ email, password }).unwrap();
+      const res = await adminLogin({ email, password }).unwrap() as any;
   
-      if (res && res.success && res.user) {
+      if (res) {
         const { access_token, refresh_token, role, name, email, _id } = res.user;
         localStorage.setItem("token", access_token);
         localStorage.setItem("refresh_token", refresh_token);
@@ -130,7 +130,7 @@ export default function Login() {
       >
         <Card className="border-0 shadow-lg">
           <CardHeader className="space-y-2 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+            <div onClick={()=>navigate("/")} className="mx-auto cursor-pointer mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
               <img src={Logo} alt="Logo" className="h-6 w-6" />
             </div>
             <CardTitle className="text-2xl font-bold">Welcome to Plink</CardTitle>

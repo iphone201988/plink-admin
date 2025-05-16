@@ -25,7 +25,20 @@ export const apis = createApi({
                 body: userData,
             }),
         }),
+        getUserDetails: builder.query<any, void>({
+            query: () => ({
+                url: '/user/get-user',
+                method: 'GET'
+            }),
+            providesTags: ['User'],
+        }),
+        userLogout: builder.mutation<any, void>({
+            query: () => ({
+                url: '/user/logout-user',
+                method: 'POST'
+            }),
+        }),
     }),
 });
 
-export const { useAdminLoginMutation } = apis;
+export const { useAdminLoginMutation,useGetUserDetailsQuery,useUserLogoutMutation } = apis;

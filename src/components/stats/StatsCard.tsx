@@ -20,18 +20,20 @@ export function StatsCard({
   changePeriod = "Since last month" 
 }: StatsCardProps) {
   const getIconComponent = () => {
-    switch (icon) {
-      case "users":
-        return <Users className="w-5 h-5" />;
-      case "courts":
-        return <Volleyball className="w-5 h-5" />;
-      case "events":
-        return <CalendarCheck className="w-5 h-5" />;
-      case "rating":
-        return <Star className="w-5 h-5" />;
-      default:
-        return <Users className="w-5 h-5" />;
-    }
+    const iconClass = "w-5 h-5 text-gray-700 dark:text-gray-900";
+
+  switch (icon) {
+    case "users":
+      return <Users className={iconClass} />;
+    case "courts":
+      return <Volleyball className={iconClass} />;
+    case "events":
+      return <CalendarCheck className={iconClass} />;
+    case "rating":
+      return <Star className={iconClass} />;
+    default:
+      return <Users className={iconClass} />;
+  }
   };
 
   const getIconBackground = () => {
