@@ -10,14 +10,25 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 import Logo from "@/assets/logo.png";
-import { useUserLogoutMutation } from "@/api";
+import { useGetUserDetailsQuery, useUserLogoutMutation } from "@/api";
 import { toast } from "@/hooks/use-toast";
 
 export function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { data: userDetails } = useGetUserDetailsQuery();
+  console.log(userDetails);
+  
   const [userLogout] = useUserLogoutMutation()
   const { sidebarCollapsed } = useSelector((state: any) => state.ui);
+
+  const userName = userDetails?.user?.name || "Admin User";
+  const initials = userName
+    ? userName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "AU";
+  const profileImage = userDetails?.user?.profileImage
+    ? `${import.meta.env.VITE_BASE_URL}${userDetails.user.profileImage}`
+    : undefined;
 
   const sidebarVariants = {
     expanded: { width: "18rem" },
@@ -107,12 +118,16 @@ export function Sidebar() {
       <div className="p-4 border-t">
         <div className="flex items-center space-x-3">
           <Avatar>
-            <AvatarFallback className="bg-secondary text-primary dark:bg-gray-700">AU</AvatarFallback>
+            {profileImage ? (
+              <AvatarImage src={profileImage} alt={userName} />
+            ) : (
+              <AvatarFallback className="bg-secondary text-primary dark:bg-gray-700">{initials}</AvatarFallback>
+            )}
           </Avatar>
           {!sidebarCollapsed && (
             <div>
-              <h4 className="text-sm font-semibold text-textDark dark:text-white">Admin User</h4>
-              <p className="text-xs text-textLight dark:text-gray-400">admin@plink.com</p>
+              <h4 className="text-sm font-semibold text-textDark dark:text-white">{userDetails?.user?.name}</h4>
+              <p className="text-xs text-textLight dark:text-gray-400">{userDetails?.user?.email }</p>
             </div>
           )}
           <Button
