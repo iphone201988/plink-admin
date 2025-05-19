@@ -17,7 +17,7 @@ export default function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   
   // Sample data - in a real app, this would come from API
-  const [events, setEvents] = useState<Event[]>([
+  const [events, setEvents] = useState<Event[]|any>([
     {
       id: 1,
       title: "Tennis Tournament",
@@ -90,7 +90,7 @@ export default function Calendar() {
     });
   };
   
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events.filter((event:any) => {
     return typeFilter === "all" || event.type === typeFilter;
   });
   
