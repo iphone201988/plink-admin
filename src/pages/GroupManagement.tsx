@@ -14,8 +14,9 @@ import { pageTransition } from "@/lib/animations";
 
 export default function GroupManagement() {
   const [searchQuery, setSearchQuery] = useState("");
+
   
-  // Modal and dialog state
+  
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [activeGroup, setActiveGroup] = useState<Group | null>(null);
