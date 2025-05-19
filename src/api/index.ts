@@ -38,7 +38,17 @@ export const apis = createApi({
                 method: 'POST'
             }),
         }),
+        getDashboardData: builder.query<any, { page?: number,limit?:number } | void>({
+            query: (arg) => {
+                const page = arg && typeof arg === 'object' && 'page' in arg ? arg.page : 1;
+                const limit = arg && typeof arg === 'object' && 'limit' in arg ? arg.limit : 5;
+                return {
+                    url: `/dashboard?page=${page}&limit=${limit}`,
+                    method: 'GET'
+                };
+            },
+        })
     }),
 });
 
-export const { useAdminLoginMutation,useGetUserDetailsQuery,useUserLogoutMutation } = apis;
+export const { useAdminLoginMutation,useGetUserDetailsQuery,useUserLogoutMutation , useGetDashboardDataQuery } = apis;

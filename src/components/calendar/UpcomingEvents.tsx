@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { EventItem } from "@/components/calendar/EventItem";
 import { Event } from "@/types";
 
@@ -13,17 +13,37 @@ interface UpcomingEventsProps {
 }
 
 export function UpcomingEvents({ events, onEventClick, onAddEvent }: UpcomingEventsProps) {
-  // Sort events by date
+  const [showAll, setShowAll] = useState(false);
+  
   const sortedEvents = [...events].sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
+    const dateA = new Date(a.startTimestamp);
+    const dateB = new Date(b.startTimestamp);
     return dateA.getTime() - dateB.getTime();
+  });
+  
+  const displayEvents = showAll ? sortedEvents : sortedEvents.slice(0, 7);
+  const remainingCount = sortedEvents.length - 7;
+
+  const today = new Date();
+  // Only show upcoming events (events that haven't ended yet)
+  const upcomingEvents = displayEvents.filter(event => {
+    const endDate = new Date(event.endTimestamp);
+    return endDate > today;
   });
   
   return (
     <Card className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
       <CardHeader className="pb-2 border-b border-gray-100 dark:border-gray-700">
-        <CardTitle>Upcoming Events</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle>Upcoming Events</CardTitle>
+          {/* <Button 
+            onClick={onAddEvent} 
+            size="sm"
+            className="bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+          </Button> */}
+        </div>
       </CardHeader>
       
       <CardContent className="p-4">
@@ -33,12 +53,12 @@ export function UpcomingEvents({ events, onEventClick, onAddEvent }: UpcomingEve
           animate={{ opacity: 1 }}
           transition={{ staggerChildren: 0.1 }}
         >
-          {sortedEvents.length > 0 ? (
-            sortedEvents.map((event, index) => (
-              <EventItem 
-                key={index} 
-                event={event} 
-                onClick={onEventClick} 
+          {upcomingEvents.length > 0 ? (
+            upcomingEvents.map((event) => (
+              <EventItem
+                key={event._id}
+                event={event}
+                onClick={onEventClick}
               />
             ))
           ) : (
@@ -47,17 +67,18 @@ export function UpcomingEvents({ events, onEventClick, onAddEvent }: UpcomingEve
             </div>
           )}
         </motion.div>
+        
+        {remainingCount > 0 && !showAll && (
+          <Button
+            variant="ghost"
+            className="w-full mt-4 text-primary hover:text-primary/80"
+            onClick={() => setShowAll(true)}
+          >
+            <ChevronDown className="h-4 w-4 mr-2" />
+            Show {remainingCount} more events
+          </Button>
+        )}
       </CardContent>
-      
-      <CardFooter className="p-4 border-t border-gray-100 dark:border-gray-700">
-        <Button 
-          onClick={onAddEvent} 
-          className="w-full py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Event
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

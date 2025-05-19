@@ -19,6 +19,7 @@ export interface User {
   memberSince: string;
   colorScheme: string;
   groups?: UserGroup[];
+  profileImage?: string;
 }
 
 export interface UserGroup {
@@ -38,14 +39,25 @@ export interface Group {
 
 // Event Types
 export interface Event {
-  id: number;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  type: string;
-  description?: string;
-  attendees?: number;
+  _id: string;
+  hostId: {
+    _id: string;
+    name: string;
+    email: string;
+    profileImage: string;
+  };
+  startTimestamp: string;
+  endTimestamp: string;
+  court: {
+    _id: string;
+    title: string;
+    description: string;
+    phoneNumber: number;
+    countryCode: number;
+    address: string;
+  };
+  playerCount: number;
+  status: number;
 }
 
 // Court Types

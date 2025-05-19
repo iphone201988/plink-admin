@@ -11,6 +11,9 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({ events, onEventClick }: CalendarViewProps) {
+  
+  console.log("CalendarView events", events);
+
   const [currentDate, setCurrentDate] = useState(new Date());
   
   const monthNames = [
@@ -30,13 +33,8 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // First day of the month
     const firstDay = new Date(year, month, 1).getDay();
-    
-    // Last day of the month
     const lastDate = new Date(year, month + 1, 0).getDate();
-    
-    // Last day of the previous month
     const prevMonthLastDate = new Date(year, month, 0).getDate();
     
     const days = [];
@@ -61,11 +59,11 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
       
       // Find events for this day
       const dayEvents = events.filter(event => {
-        const eventDate = new Date(event.date);
+        const startDate = new Date(event.startTimestamp);
         return (
-          eventDate.getDate() === i &&
-          eventDate.getMonth() === month &&
-          eventDate.getFullYear() === year
+          startDate.getDate() === i &&
+          startDate.getMonth() === month &&
+          startDate.getFullYear() === year
         );
       });
       
@@ -77,8 +75,8 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
       });
     }
     
-    // Next month days to fill the calendar grid
-    const remainingDays = 42 - days.length; // 6 rows of 7 days
+    // Next month days
+    const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       days.push({
         date: i,
@@ -92,19 +90,16 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
   
   const calendarDays = getMonthDays();
   
-  const getEventColorClass = (eventType: string) => {
-    switch(eventType) {
-      case "tournament":
-        return "bg-blue-100 text-primary dark:bg-blue-900/30 dark:text-blue-300";
-      case "maintenance":
-        return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300";
-      case "league":
-        return "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300";
-      case "training":
-        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300";
-      default:
-        return "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
-    }
+  const formatEventTime = (startTime: string, endTime: string) => {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    return `${start.getHours()}:${start.getMinutes().toString().padStart(2, '0')} - ${end.getHours()}:${end.getMinutes().toString().padStart(2, '0')}`;
+  };
+  
+  const getEventColorClass = (event: Event) => {
+    // You can customize this based on event properties
+    // For now using a default color
+    return "bg-blue-100 text-primary dark:bg-blue-900/30 dark:text-blue-300";
   };
   
   return (
@@ -148,7 +143,7 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
           {calendarDays.map((day, index) => (
             <div 
               key={index} 
-              className={`border border-gray-100 dark:border-gray-700 p-2 calendar-cell ${
+              className={`border border-gray-100 dark:border-gray-700 p-2 min-h-[100px] calendar-cell ${
                 !day.currentMonth 
                   ? "text-gray-400 dark:text-gray-600" 
                   : day.today 
@@ -166,16 +161,21 @@ export function CalendarView({ events, onEventClick }: CalendarViewProps) {
                 {day.date}
               </div>
               
-              {day.events?.map((event, eventIndex) => (
-                <motion.div 
-                  key={eventIndex}
-                  className={`calendar-event text-xs p-1 rounded ${getEventColorClass(event.type)} mb-1 cursor-pointer`}
-                  onClick={() => onEventClick(event)}
-                  whileHover={{ scale: 1.03 }}
-                >
-                  {event.title}
-                </motion.div>
-              ))}
+              <div className="space-y-1">
+                {day.events?.map((event, eventIndex) => (
+                  <motion.div 
+                    key={event._id}
+                    className={`calendar-event text-xs p-1 rounded ${getEventColorClass(event)} mb-1 cursor-pointer overflow-hidden`}
+                    onClick={() => onEventClick(event)}
+                    whileHover={{ scale: 1.03 }}
+                  >
+                    <div className="font-medium truncate">{event.court.title}</div>
+                    <div className="text-xs opacity-75">
+                      {formatEventTime(event.startTimestamp, event.endTimestamp)}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           ))}
         </div>

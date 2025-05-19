@@ -12,7 +12,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Event } from "@/types";
+import { Event as EventType } from "@/types";
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  type: string;
+  teamId: string;
+  description?: string;
+}
 
 // Form validation schema
 const eventFormSchema = z.object({
@@ -62,14 +73,11 @@ export function EventForm({ event, onSubmit, isSubmitting = false }: EventFormPr
       ...values,
       // Combine start and end time into a single time string
       time: `${values.startTime}-${values.endTime}`,
-      // Convert date object to string format (if needed by the application)
-      date: values.date instanceof Date ? values.date.toISOString().split('T')[0] : values.date,
+      // Ensure date is a Date object
+      date: values.date,
     };
     
-    // Remove startTime and endTime as they're now combined in the time field
-    const { startTime, endTime, ...finalValues } = formattedValues;
-    
-    onSubmit({...finalValues, startTime, endTime, date: values.date});
+    onSubmit(formattedValues);
   };
 
   return (
