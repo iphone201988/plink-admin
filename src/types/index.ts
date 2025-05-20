@@ -11,7 +11,7 @@ export interface ToastProps {
 
 // User Types
 export interface User {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -20,6 +20,12 @@ export interface User {
   colorScheme: string;
   groups?: UserGroup[];
   profileImage?: string;
+  selfRating: number;
+  UTRP: number;
+  WPR: number;
+  UTPR: number;
+  CTPR: number;
+  isActive: boolean;
 }
 
 export interface UserGroup {

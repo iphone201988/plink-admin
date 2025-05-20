@@ -12,7 +12,7 @@ import { Modal, ConfirmModal } from "@/components/ui/modal";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@/types";
 import { pageTransition } from "@/lib/animations";
-import { useGetUserDatamanagementQuery } from "@/api";
+import { useDeleteSuspendUserMutation, useEditUserMutation, useGetUserDatamanagementQuery } from "@/api";
 
 export default function UserManagement() {
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
@@ -30,6 +30,9 @@ export default function UserManagement() {
     limit: 6
   });
 
+  const [deleteSuspendUser] = useDeleteSuspendUserMutation();
+  const [editUser] = useEditUserMutation();
+
   const users = userData?.users?.map((user: any) => ({
     id: user._id,
     firstName: user.name.split(' ')[0],
@@ -40,7 +43,12 @@ export default function UserManagement() {
     colorScheme: "blue",
     groups: [],
     profileImage: user.profileImage,
-    selfRating: user.selfRating
+    selfRating: user.selfRating || 0,
+    UTRP: user.UTRP || 0,
+    WPR: user.WPR || 0,
+    UTPR: user.UTPR || 0,
+    CTPR: user.CTPR || 0,
+    isActive: user.isActive
   })) || [];
 
   const totalPages = userData?.pagination?.totalPages || 1;
@@ -50,9 +58,59 @@ export default function UserManagement() {
     setIsEditModalOpen(true);
   };
 
-  const handleToggleUserStatus = (user: User) => {
-    const newStatus = user.status === "Active" ? "Suspended" : "Active";
+  const handleEdit = async (user: any) => {
+    try {
+      // Show a loading indicator or disable the save button
+      setIsSubmitting(true);
 
+      // Prepare the user data for the API call
+      const userData = {
+        name: `${user.firstName} ${user.lastName || ''}`.trim(),
+        selfRating: user.selfRating || 0,
+        UTRP: user.UTRP || 0,
+        WPR: user.WPR || 0,
+        UTPR: user.UTPR || 0,
+        CTPR: user.CTPR || 0,
+        isActive: user.isActive,
+      };
+
+      // Make the API call to update the user
+      const response = await editUser({
+        id: user.id,
+        userData,
+      }).unwrap();
+
+      // Show a success toast notification
+      toast({
+        title: "User Updated",
+        description: `${userData.name} has been updated successfully!`,
+        variant: "success",
+      });
+
+      console.log("User updated successfully:", response);
+    } catch (error) {
+      // Show an error toast notification
+      toast({
+        title: "Error",
+        description: "Failed to update the user. Please try again.",
+        variant: "destructive",
+      });
+
+      console.error("Error updating user:", error);
+    } finally {
+      // Hide the loading indicator or re-enable the save button
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleUserStatus = async (user: User) => {
+    console.log("user::", user);
+
+    const newStatus = user.status === "Active" ? "Suspended" : "Active";
+    await deleteSuspendUser({
+      type: 2,
+      userId: user.id
+    }).unwrap();
     toast({
       title: "Status Updated",
       description: `${user.firstName} ${user.lastName} is now ${newStatus}`,
@@ -60,13 +118,19 @@ export default function UserManagement() {
     });
   };
 
-  const handleDeleteClick = (user: User) => {
+  const handleDeleteClick = async (user: User) => {
     setSelectedUser(user);
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (!selectedUser) return;
+
+    console.log("coming here");
+    await deleteSuspendUser({
+      type: 1,
+      userId: selectedUser.id
+    }).unwrap();
 
     toast({
       title: "User Deleted",
@@ -81,19 +145,22 @@ export default function UserManagement() {
     setIsAddModalOpen(true);
   };
 
-  const handleSubmitUser = (values: any) => {
+  const handleSubmitUser = async (values: any) => {
+    console.log("values", values);
     setIsSubmitting(true);
 
     try {
       if (selectedUser) {
         toast({
           title: "User Updated",
-          description: `${values.firstName} ${values.lastName} has been updated`,
+          description: `${selectedUser.firstName} has been updated`,
           variant: "success"
         });
 
         setIsEditModalOpen(false);
       } else {
+        console.log("ertyuij");
+
         toast({
           title: "User Added",
           description: "The user has been added successfully.",
@@ -112,6 +179,7 @@ export default function UserManagement() {
       setIsSubmitting(false);
     }
   };
+
 
   const filteredUsers = users.filter((user: any) => {
     const matchesSearch =

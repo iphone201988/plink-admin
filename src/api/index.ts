@@ -16,7 +16,7 @@ export const apis = createApi({
             return headers;
         },
     }),
-    tagTypes: ['User'],
+    tagTypes: ['User', 'User_M'],
     endpoints: (builder) => ({
         adminLogin: builder.mutation<SignupResponse, SignupRequest>({
             query: (userData) => ({
@@ -38,7 +38,7 @@ export const apis = createApi({
                 method: 'POST'
             }),
         }),
-        getDashboardData: builder.query<any, { page?: number,limit?:number } | void>({
+        getDashboardData: builder.query<any, { page?: number, limit?: number } | void>({
             query: (arg) => {
                 const page = arg && typeof arg === 'object' && 'page' in arg ? arg.page : 1;
                 const limit = arg && typeof arg === 'object' && 'limit' in arg ? arg.limit : 6;
@@ -48,7 +48,7 @@ export const apis = createApi({
                 };
             },
         }),
-        getUserDatamanagement :builder.query<any, { page?: number,limit?:number } | void>({
+        getUserDatamanagement: builder.query<any, { page?: number, limit?: number } | void>({
             query: (arg) => {
                 const page = arg && typeof arg === 'object' && 'page' in arg ? arg.page : 1;
                 const limit = arg && typeof arg === 'object' && 'limit' in arg ? arg.limit : 6;
@@ -56,9 +56,28 @@ export const apis = createApi({
                     url: `/dashboard/user-management?page=${page}&limit=${limit}`,
                     method: 'GET'
                 };
-            },  
-        })
+            },
+            providesTags: ["User_M"]
+        }),
+        deleteSuspendUser: builder.mutation<any, any>({
+            query: (userData) => ({
+                url: '/dashboard/suspend-delete-user',
+                method: 'POST',
+                body: userData,
+            }),
+            invalidatesTags: ["User_M"]
+        }),
+        editUser: builder.mutation<any, any>({
+            query: ({ id,
+                userData
+            }) => ({
+                url: `/dashboard/update-user/${id}`,
+                method: 'POST',
+                body: userData,
+            }),
+            invalidatesTags: ["User_M"]
+        }),
     }),
 });
 
-export const { useAdminLoginMutation,useGetUserDetailsQuery,useUserLogoutMutation , useGetDashboardDataQuery,useGetUserDatamanagementQuery } = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation,useEditUserMutation } = apis;

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { User, UserGroup } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { format } from "date-fns";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -17,14 +18,20 @@ interface UserModalProps {
 }
 
 const userFormSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Invalid email address"),
   status: z.string(),
   groups: z.array(z.object({
     name: z.string(),
     color: z.string()
   })).optional(),
+  memberSince: z.string().optional(),
+  profileImage: z.string().optional(),
+  selfRating: z.number().min(0).max(5).optional(),
+  UTRP: z.number().min(0).max(16).optional(),
+  WPR: z.number().min(0).max(16).optional(),
+  UTPR: z.number().min(0).max(16).optional(),
+  CTPR: z.number().min(0).max(16).optional(),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -34,16 +41,23 @@ export function UserModal({ isOpen, onClose, onSubmit, user }: UserModalProps) {
     user?.groups?.map(g => g.name) || []
   );
 
+  console.log("user recent", user);
+
+
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
+      name: user ? `${user.firstName} ${user.lastName}`.trim() : "",
       email: user?.email || "",
       status: user?.status || "Active",
-      groups: user?.groups || [],
-    }
+      selfRating: user?.selfRating || 0,
+      UTRP: user?.UTRP || 0,
+      WPR: user?.WPR || 0,
+      UTPR: user?.UTPR || 0,
+      CTPR: user?.CTPR || 0,
+    },
   });
+
 
   const availableGroups = [
     { name: "Tennis Club", color: "blue" },
@@ -56,45 +70,72 @@ export function UserModal({ isOpen, onClose, onSubmit, user }: UserModalProps) {
     const group = availableGroups.find(g => g.name === groupName);
     if (!group) return;
 
-    // Update selected groups for the UI
     setSelectedGroups(prev => {
-      // If already selected, remove it
       if (prev.includes(groupName)) {
         return prev.filter(g => g !== groupName);
-      } 
-      // Otherwise add it
+      }
       return [...prev, groupName];
     });
 
-    // Update the form value
     const currentGroups = form.getValues().groups || [];
     const groupExists = currentGroups.some(g => g.name === groupName);
 
     if (groupExists) {
-      // Remove the group
       form.setValue(
-        "groups", 
+        "groups",
         currentGroups.filter(g => g.name !== groupName)
       );
     } else {
-      // Add the group
       form.setValue(
-        "groups", 
+        "groups",
         [...currentGroups, { name: groupName, color: group.color }]
       );
     }
   };
 
   const handleSubmit = (values: UserFormValues) => {
-    onSubmit(values);
+
+    const nameParts = values.name.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+
+    const userData = {
+      ...values,
+      firstName,
+      lastName,
+      isActive: values.status === "Active",
+    };
+
+    onSubmit(userData);
     onClose();
   };
 
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        email: user.email || "",
+        status: user.status || "Active",
+        selfRating: user.selfRating || 0,
+        UTRP: user.UTRP || 0,
+        WPR: user.WPR || 0,
+        UTPR: user.UTPR || 0,
+        CTPR: user.CTPR || 0,
+        groups: user.groups || [],
+        memberSince: user.memberSince || "",
+        profileImage: user.profileImage || "",
+      });
+      setSelectedGroups(user.groups?.map(g => g.name) || []);
+    }
+  }, [user, form]);
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{user ? "Edit User" : "Add New User"}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Member since: {format(user ? new Date(user.memberSince) : new Date(), "MMMM yyyy")}
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -102,72 +143,65 @@ export function UserModal({ isOpen, onClose, onSubmit, user }: UserModalProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="First name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                name="name"
+                render={({ field }) => {
+                  console.log("field", field);
+
+                  return (
+                    (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )
+                  )
+                }}
               />
 
               <FormField
                 control={form.control}
-                name="lastName"
+                name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Last name" {...field} />
-                    </FormControl>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select user status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Suspended">Suspended</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Email address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select user status" />
-                      </SelectTrigger>
+                      <Input type="email" placeholder="Email address" {...field} disabled />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Suspended">Suspended</SelectItem>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div>
               <FormLabel>Groups</FormLabel>
@@ -186,6 +220,121 @@ export function UserModal({ isOpen, onClose, onSubmit, user }: UserModalProps) {
                     {group.name}
                   </Button>
                 ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">Player Ratings</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="selfRating"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Self Rating</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-5"
+                          min={0}
+                          max={5}
+                          step={0.01}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="UTRP"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UTRP</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-16"
+                          min={0}
+                          max={16}
+                          step={0.01}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="WPR"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WPR</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-16"
+                          min={0}
+                          max={16}
+                          step={0.01}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="UTPR"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UTPR</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-16"
+                          min={0}
+                          max={16}
+                          step={0.01}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="CTPR"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CTPR</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0-16"
+                          min={0}
+                          max={16}
+                          step={0.01}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
 

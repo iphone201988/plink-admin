@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { toggleNotificationModal } from "@/store/slices/uiSlice";
 import { User, Event } from "@/types";
 import { pageTransition, staggerContainer, slideUp } from "@/lib/animations";
-import { useGetDashboardDataQuery } from "@/api";
+import { useEditUserMutation, useGetDashboardDataQuery } from "@/api";
 import React from "react";
 
 export default function Dashboard() {
@@ -29,6 +29,8 @@ export default function Dashboard() {
     page: currentPage,
     limit: perPage
   });
+
+  const [editUser] = useEditUserMutation()
 
 
   const [showFilterDialog, setShowFilterDialog] = useState(false);
@@ -44,11 +46,17 @@ export default function Dashboard() {
       firstName: user.name.split(' ')[0],
       lastName: user.name.split(' ').slice(1).join(' '),
       email: user.email,
-      status: "Active",
+      status: user.isActive ? "Active" : "Suspended",
       memberSince: new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
       colorScheme: "blue",
       profileImage: user.profileImage,
-      groups: []
+      groups: [],
+      selfRating: user.selfRating || 0,
+      UTRP: user.UTRP || 0,
+      WPR: user.WPR || 0,
+      UTPR: user.UTPR || 0,
+      CTPR: user.CTPR || 0,
+      isActive: user.isActive
     }));
   }, []);
 
@@ -112,7 +120,8 @@ export default function Dashboard() {
     setShowUserModal(true);
   };
 
-  const handleUpdateUser = (userData: Partial<User>) => {
+
+  const handleUpdateUser = async(userData: Partial<User>) => {
     if (activeUser) {
       setFilteredUsers(prevUsers =>
         prevUsers.map(user =>
@@ -125,6 +134,19 @@ export default function Dashboard() {
         description: `${userData.firstName || activeUser.firstName} ${userData.lastName || activeUser.lastName} was updated`,
         variant: "success"
       });
+
+      await editUser({
+        id:activeUser.id,
+        userData:{
+          name:`${userData.firstName || activeUser.firstName} ${userData.lastName || activeUser.lastName}`,
+          selfRating: userData.selfRating || 0,
+          UTRP: userData.UTRP || 0,
+          WPR: userData.WPR || 0,
+          UTPR: userData.UTPR || 0,
+          CTPR: userData.CTPR || 0,
+          isActive: userData.isActive 
+        }
+      }).unwrap()
 
       setShowUserModal(false);
       setActiveUser(null);
