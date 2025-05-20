@@ -59,6 +59,16 @@ export const apis = createApi({
             },
             providesTags: ["User_M"]
         }),
+        getGroupData: builder.query<any, { page?: number, limit?: number } | void>({
+            query: (arg) => {
+                const page = arg && typeof arg === 'object' && 'page' in arg ? arg.page : 1;
+                const limit = arg && typeof arg === 'object' && 'limit' in arg ? arg.limit : 6;
+                return {
+                    url: `/dashboard/group-management?page=${page}&limit=${limit}`,
+                    method: 'GET'
+                };
+            },
+        }),
         deleteSuspendUser: builder.mutation<any, any>({
             query: (userData) => ({
                 url: '/dashboard/suspend-delete-user',
@@ -80,4 +90,4 @@ export const apis = createApi({
     }),
 });
 
-export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation,useEditUserMutation } = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation,useEditUserMutation,useGetGroupDataQuery } = apis;

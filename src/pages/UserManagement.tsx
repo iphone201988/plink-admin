@@ -31,8 +31,7 @@ export default function UserManagement() {
   });
 
   const [deleteSuspendUser] = useDeleteSuspendUserMutation();
-  const [editUser] = useEditUserMutation();
-
+  
   const users = userData?.users?.map((user: any) => ({
     id: user._id,
     firstName: user.name.split(' ')[0],
@@ -58,54 +57,7 @@ export default function UserManagement() {
     setIsEditModalOpen(true);
   };
 
-  const handleEdit = async (user: any) => {
-    try {
-      // Show a loading indicator or disable the save button
-      setIsSubmitting(true);
-
-      // Prepare the user data for the API call
-      const userData = {
-        name: `${user.firstName} ${user.lastName || ''}`.trim(),
-        selfRating: user.selfRating || 0,
-        UTRP: user.UTRP || 0,
-        WPR: user.WPR || 0,
-        UTPR: user.UTPR || 0,
-        CTPR: user.CTPR || 0,
-        isActive: user.isActive,
-      };
-
-      // Make the API call to update the user
-      const response = await editUser({
-        id: user.id,
-        userData,
-      }).unwrap();
-
-      // Show a success toast notification
-      toast({
-        title: "User Updated",
-        description: `${userData.name} has been updated successfully!`,
-        variant: "success",
-      });
-
-      console.log("User updated successfully:", response);
-    } catch (error) {
-      // Show an error toast notification
-      toast({
-        title: "Error",
-        description: "Failed to update the user. Please try again.",
-        variant: "destructive",
-      });
-
-      console.error("Error updating user:", error);
-    } finally {
-      // Hide the loading indicator or re-enable the save button
-      setIsSubmitting(false);
-    }
-  };
-
   const handleToggleUserStatus = async (user: User) => {
-    console.log("user::", user);
-
     const newStatus = user.status === "Active" ? "Suspended" : "Active";
     await deleteSuspendUser({
       type: 2,

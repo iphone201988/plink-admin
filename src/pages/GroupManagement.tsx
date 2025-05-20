@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Search, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,59 +11,37 @@ import { DeleteConfirmationDialog } from "@/components/ui/DeleteConfirmationDial
 import { showToast } from "@/lib/toastManager";
 import { Group } from "@/types";
 import { pageTransition } from "@/lib/animations";
+import { useGetGroupDataQuery } from "@/api";
+import { formatISODate } from "@/lib/helper";
 
 export default function GroupManagement() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  
+  const { data: groupData } = useGetGroupDataQuery({
+    page: currentPage,
+    limit: 6
+  });
+
+  const totalPages = groupData?.pagination?.totalPages || 1;
+
   
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [activeGroup, setActiveGroup] = useState<Group | null>(null);
   
-  // Sample data - in a real app, this would come from API
-  const [groups, setGroups] = useState<Group[]>([
-    {
-      id: 1,
-      name: "Tennis Club",
-      description: "Regular tennis players and enthusiasts",
-      members: 42,
-      colorScheme: "blue",
-      createdAt: "Jan 10, 2023"
-    },
-    {
-      id: 2,
-      name: "Weekend Warriors",
-      description: "Weekend sports and activities group",
-      members: 28,
-      colorScheme: "purple",
-      createdAt: "Feb 15, 2023"
-    },
-    {
-      id: 3,
-      name: "Pickle Pros",
-      description: "Professional pickleball players",
-      members: 35,
-      colorScheme: "green",
-      createdAt: "Mar 5, 2023"
-    },
-    {
-      id: 4,
-      name: "Youth League",
-      description: "Sports league for young players under 18",
-      members: 56,
-      colorScheme: "yellow",
-      createdAt: "Apr 12, 2023"
-    },
-    {
-      id: 5,
-      name: "Senior Club",
-      description: "Recreational activities for seniors",
-      members: 24,
-      colorScheme: "red",
-      createdAt: "May 20, 2023"
-    }
-  ]);
+  const groups = useMemo(() => {
+    return (groupData?.groups || []).map((group: any) => ({
+      id: group?._id,
+      name: group?.groupName,
+      description: group?.groupName,
+      members: group?.participants?.length || 0,
+      colorScheme: group?.colorScheme || "blue",
+      createdAt: formatISODate(group?.createdAt)
+    }));
+  }, [groupData]);
+  
+
   
   const handleEditGroup = (group: Group) => {
     setActiveGroup(group);
@@ -72,11 +50,11 @@ export default function GroupManagement() {
   
   const handleUpdateGroup = (groupData: Partial<Group>) => {
     if (activeGroup) {
-      setGroups(prevGroups => 
-        prevGroups.map(group => 
-          group.id === activeGroup.id ? { ...group, ...groupData } : group
-        )
-      );
+      // setGroups(prevGroups => 
+      //   prevGroups.map(group => 
+      //     group.id === activeGroup.id ? { ...group, ...groupData } : group
+      //   )
+      // );
       
       showToast({ 
         title: "Group Updated",
@@ -93,7 +71,7 @@ export default function GroupManagement() {
   
   const confirmDeleteGroup = () => {
     if (activeGroup) {
-      setGroups(prevGroups => prevGroups.filter(group => group.id !== activeGroup.id));
+      // setGroups(prevGroups => prevGroups.filter(group => group.id !== activeGroup.id));
       
       showToast({
         title: "Group Deleted",
@@ -120,7 +98,7 @@ export default function GroupManagement() {
     });
   };
   
-  const filteredGroups = groups.filter(group => {
+  const filteredGroups = groups.filter((group:any) => {
     return (
       searchQuery === "" || 
       group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -128,6 +106,9 @@ export default function GroupManagement() {
     );
   });
   
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   return (
     <motion.div
       variants={pageTransition}
@@ -171,7 +152,7 @@ export default function GroupManagement() {
             </TableHeader>
             <TableBody>
               {filteredGroups.length > 0 ? (
-                filteredGroups.map((group) => (
+                filteredGroups.map((group:any) => (
                   <TableRow key={group.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     <TableCell>
                       <div className="flex items-center">
@@ -212,17 +193,38 @@ export default function GroupManagement() {
         
         <CardFooter className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
           <p className="text-sm text-textLight dark:text-gray-400">
-            Showing {filteredGroups.length} of {groups.length} groups
+            Showing {groupData?.pagination?.perPage} of {groupData?.pagination?.totalItems} users
           </p>
           <div className="flex space-x-1">
-            <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400">
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
+              onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
             </Button>
-            <Button variant="default" size="icon" className="w-8 h-8">1</Button>
-            <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 text-textDark dark:text-white border-gray-200 dark:border-gray-700">2</Button>
-            <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="icon"
+                className="w-8 h-8"
+                onClick={() => handlePageChange(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
+              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
