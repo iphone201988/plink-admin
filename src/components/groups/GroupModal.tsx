@@ -8,6 +8,7 @@ import { Group } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useEffect } from "react";
 
 interface GroupModalProps {
   isOpen: boolean;
@@ -19,18 +20,20 @@ interface GroupModalProps {
 const groupFormSchema = z.object({
   name: z.string().min(2, "Group name must be at least 2 characters"),
   description: z.string().min(5, "Description must be at least 5 characters"),
-  colorScheme: z.string(),
+  // colorScheme: z.string(),
 });
 
 type GroupFormValues = z.infer<typeof groupFormSchema>;
 
 export function GroupModal({ isOpen, onClose, onSubmit, group }: GroupModalProps) {
+  console.log("group",group);
+  
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupFormSchema),
     defaultValues: {
       name: group?.name || "",
       description: group?.description || "",
-      colorScheme: group?.colorScheme || "blue",
+      // colorScheme: group?.colorScheme || "blue",
     }
   });
 
@@ -49,6 +52,22 @@ export function GroupModal({ isOpen, onClose, onSubmit, group }: GroupModalProps
     onSubmit(values);
     onClose();
   };
+
+  useEffect(() => {
+    if (group) {
+      form.reset({
+        name: group.name,
+        description: group.description,
+        // colorScheme: group.colorScheme || "blue",
+      });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        // colorScheme: "blue",
+      });
+    }
+  }, [group]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -91,7 +110,7 @@ export function GroupModal({ isOpen, onClose, onSubmit, group }: GroupModalProps
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="colorScheme"
               render={({ field }) => (
@@ -121,7 +140,7 @@ export function GroupModal({ isOpen, onClose, onSubmit, group }: GroupModalProps
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>

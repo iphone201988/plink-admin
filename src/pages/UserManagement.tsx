@@ -184,10 +184,10 @@ export default function UserManagement() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={handleAddUser}>
+        {/* <Button onClick={handleAddUser}>
           <Plus className="h-4 w-4 mr-2" />
           <span>Add User</span>
-        </Button>
+        </Button> */}
       </div>
 
       {/* Users List */}

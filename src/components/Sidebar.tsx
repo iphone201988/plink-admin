@@ -119,7 +119,7 @@ export function Sidebar() {
         <div className="flex items-center space-x-3">
           <Avatar>
             {profileImage ? (
-              <AvatarImage src={profileImage} alt={userName} />
+              <AvatarImage  src={profileImage} alt={userName} />
             ) : (
               <AvatarFallback className="bg-secondary text-primary dark:bg-gray-700">{initials}</AvatarFallback>
             )}

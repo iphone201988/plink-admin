@@ -72,7 +72,6 @@ export default function Dashboard() {
     hostId: any;
   }
 
-  // Memoize transformed data
   const users = React.useMemo(() =>
     transformApiUsers(dashboardData?.recentUsers?.data || []),
     [dashboardData?.recentUsers?.data, transformApiUsers]

@@ -4,14 +4,14 @@ import { Plus, Search, Edit, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GroupModal } from "@/components/groups/GroupModal";
 import { DeleteConfirmationDialog } from "@/components/ui/DeleteConfirmationDialog";
 import { showToast } from "@/lib/toastManager";
 import { Group } from "@/types";
 import { pageTransition } from "@/lib/animations";
-import { useGetGroupDataQuery } from "@/api";
+import { useDeleteGroupMutation, useEditGroupMutation, useGetGroupDataQuery } from "@/api";
 import { formatISODate } from "@/lib/helper";
 
 export default function GroupManagement() {
@@ -22,7 +22,9 @@ export default function GroupManagement() {
     page: currentPage,
     limit: 6
   });
-
+ const [editGroup] =  useEditGroupMutation()
+  const [deleteGroup] = useDeleteGroupMutation();
+  
   const totalPages = groupData?.pagination?.totalPages || 1;
 
   
@@ -34,7 +36,7 @@ export default function GroupManagement() {
     return (groupData?.groups || []).map((group: any) => ({
       id: group?._id,
       name: group?.groupName,
-      description: group?.groupName,
+      description: group?.groupDescription,
       members: group?.participants?.length || 0,
       colorScheme: group?.colorScheme || "blue",
       createdAt: formatISODate(group?.createdAt)
@@ -48,13 +50,21 @@ export default function GroupManagement() {
     setShowGroupModal(true);
   };
   
-  const handleUpdateGroup = (groupData: Partial<Group>) => {
+  const handleUpdateGroup = async(groupData: Partial<Group>) => {
     if (activeGroup) {
       // setGroups(prevGroups => 
       //   prevGroups.map(group => 
       //     group.id === activeGroup.id ? { ...group, ...groupData } : group
       //   )
       // );
+
+     await editGroup({
+        id:activeGroup.id,
+        body:{groupName:groupData.name,
+          groupDescription : groupData.description,
+        }
+      }).unwrap();
+
       
       showToast({ 
         title: "Group Updated",
@@ -69,15 +79,19 @@ export default function GroupManagement() {
     setShowDeleteDialog(true);
   };
   
-  const confirmDeleteGroup = () => {
+  const confirmDeleteGroup = async() => {
     if (activeGroup) {
       // setGroups(prevGroups => prevGroups.filter(group => group.id !== activeGroup.id));
-      
+      deleteGroup
       showToast({
         title: "Group Deleted",
         description: `${activeGroup.name} has been removed`,
         variant: "destructive"
       });
+
+     await deleteGroup({
+        id:activeGroup.id
+      }).unwrap();
       
       // Close the dialog
       setShowDeleteDialog(false);
@@ -127,10 +141,10 @@ export default function GroupManagement() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button onClick={handleAddGroup}>
+        {/* <Button onClick={handleAddGroup}>
           <Plus className="h-4 w-4 mr-2" />
           <span>Add Group</span>
-        </Button>
+        </Button> */}
       </div>
       
       {/* Groups List */}

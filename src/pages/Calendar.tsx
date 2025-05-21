@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Calendar as CalendarIcon, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,71 +10,19 @@ import { EventModal } from "@/components/calendar/EventModal";
 import { showToast } from "@/lib/toastManager";
 import { Event } from "@/types";
 import { pageTransition } from "@/lib/animations";
+import { useGetGameEventsQuery } from "@/api";
 
 export default function Calendar() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  
-  // Sample data - in a real app, this would come from API
-  const [events, setEvents] = useState<Event[]|any>([
-    {
-      id: 1,
-      title: "Tennis Tournament",
-      date: new Date().toISOString(),
-      time: "9:00 AM - 5:00 PM",
-      location: "Main Court",
-      type: "tournament"
-    },
-    {
-      id: 2,
-      title: "Court Maintenance",
-      date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString(),
-      time: "7:00 AM - 10:00 AM",
-      location: "All Courts",
-      type: "maintenance"
-    },
-    {
-      id: 3,
-      title: "Pickle League",
-      date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString(),
-      time: "1:00 PM - 4:00 PM",
-      location: "Courts 3-6",
-      type: "league"
-    },
-    {
-      id: 4,
-      title: "Training Session",
-      date: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
-      time: "10:00 AM - 12:00 PM",
-      location: "Practice Court",
-      type: "training"
-    },
-    {
-      id: 5,
-      title: "Community Match",
-      date: new Date(new Date().setDate(new Date().getDate() + 4)).toISOString(),
-      time: "2:00 PM - 4:00 PM",
-      location: "Court 2",
-      type: "tournament"
-    },
-    {
-      id: 6,
-      title: "Youth Program",
-      date: new Date(new Date().setDate(new Date().getDate() + 6)).toISOString(),
-      time: "3:30 PM - 5:30 PM",
-      location: "Courts 1-2",
-      type: "training"
-    },
-    {
-      id: 7,
-      title: "Equipment Check",
-      date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
-      time: "8:00 AM - 9:00 AM",
-      location: "All Courts",
-      type: "maintenance"
-    }
-  ]);
+
+  const {data:gameEvents} = useGetGameEventsQuery();
+
+  const events = React.useMemo(() =>
+    gameEvents?.allGames || [],
+      [gameEvents?.allGames]
+    );
   
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
@@ -82,7 +30,6 @@ export default function Calendar() {
   };
   
   const handleAddEvent = () => {
-    // Open event form/modal
     showToast({
       title: "Add Event",
       description: "Event creation form would open here",
@@ -118,10 +65,10 @@ export default function Calendar() {
             <SelectItem value="training">Training</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={handleAddEvent}>
+        {/* <Button onClick={handleAddEvent}>
           <Plus className="h-4 w-4 mr-2" />
           <span>Add Event</span>
-        </Button>
+        </Button> */}
       </div>
       
       {/* Calendar & Upcoming Events */}

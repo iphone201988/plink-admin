@@ -16,7 +16,7 @@ export const apis = createApi({
             return headers;
         },
     }),
-    tagTypes: ['User', 'User_M'],
+    tagTypes: ['User', 'User_M',"GROUP_M"],
     endpoints: (builder) => ({
         adminLogin: builder.mutation<SignupResponse, SignupRequest>({
             query: (userData) => ({
@@ -68,6 +68,7 @@ export const apis = createApi({
                     method: 'GET'
                 };
             },
+            providesTags:["GROUP_M"]
         }),
         deleteSuspendUser: builder.mutation<any, any>({
             query: (userData) => ({
@@ -87,7 +88,33 @@ export const apis = createApi({
             }),
             invalidatesTags: ["User_M"]
         }),
+        deleteGroup: builder.mutation<any, any>({
+            query: ({ id
+            }) => ({
+                url: `/dashboard/delete-group/${id}`,
+                method: 'DELETE'
+            }),
+            invalidatesTags:["GROUP_M"]
+        }),
+        editGroup: builder.mutation<any, any>({
+            query: ({ id,
+                body
+            }) => ({
+                url: `/dashboard/edit-group/${id}`,
+                method: 'PUT',
+                body
+            }),
+            invalidatesTags:["GROUP_M"]
+        }),
+
+        getGameEvents: builder.query<any, void>({
+            query: () => ({
+                url: '/dashboard/all-game-events',
+                method: 'GET'
+            }),
+        }),
+
     }),
 });
 
-export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation,useEditUserMutation,useGetGroupDataQuery } = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery } = apis;
