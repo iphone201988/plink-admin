@@ -1,14 +1,26 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { User } from "@/types";
 import { useEditUserMutation } from "@/api";
-
 
 // Form validation schema
 const userFormSchema = z.object({
@@ -32,17 +44,15 @@ interface UserFormProps {
   isSubmitting?: boolean;
 }
 
-export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps) {
-
-
+export function UserForm({
+  user,
+  onSubmit,
+  isSubmitting = false,
+}: UserFormProps) {
   const isEditMode = !!user;
-
 
   const [editUser] = useEditUserMutation();
 
-
-  
-  
   // Initialize form with default values or user data if in edit mode
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -60,25 +70,21 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
     },
   });
 
-
   const handleSubmit = async (values: UserFormValues) => {
-      onSubmit(values);
-      await editUser({
-        id: user?.id,
-        userData: {
-          name: `${values.name}`.trim(),
-          selfRating: values.selfRating || 0,
-          UTRP: values.UTRP || 0,
-          WPR: values.WPR || 0,
-          UTPR: values.UTPR || 0,
-          CTPR: values.CTPR || 0,
-          isActive: values.status === "Active" ? true : false,
-        },
-      }).unwrap();
-    
+    onSubmit(values);
+    await editUser({
+      id: user?.id,
+      userData: {
+        name: `${values.name}`.trim(),
+        selfRating: values.selfRating || 0,
+        UTRP: values.UTRP || 0,
+        WPR: values.WPR || 0,
+        UTPR: values.UTPR || 0,
+        CTPR: values.CTPR || 0,
+        isActive: values.status === "Active" ? true : false,
+      },
+    }).unwrap();
   };
-
-
 
   return (
     <Form {...form}>
@@ -96,7 +102,7 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="email"
@@ -110,8 +116,7 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
             </FormItem>
           )}
         />
-      
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -144,14 +149,14 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
               <FormItem>
                 <FormLabel>Self Rating</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     placeholder="0-5"
                     min={0}
                     max={5}
                     step={0.01}
                     {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -166,14 +171,14 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
               <FormItem>
                 <FormLabel>UTRP</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     placeholder="0-16"
                     min={0}
                     max={16}
                     step={0.01}
                     {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -188,14 +193,14 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
               <FormItem>
                 <FormLabel>WPR</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     placeholder="0-16"
                     min={0}
                     max={16}
                     step={0.01}
                     {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -210,14 +215,14 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
               <FormItem>
                 <FormLabel>UTPR</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     placeholder="0-16"
                     min={0}
                     max={16}
                     step={0.01}
                     {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -232,14 +237,14 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
               <FormItem>
                 <FormLabel>CTPR</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     placeholder="0-16"
                     min={0}
                     max={16}
                     step={0.01}
                     {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -247,11 +252,16 @@ export function UserForm({ user, onSubmit, isSubmitting = false }: UserFormProps
             )}
           />
         </div>
-      
-        
+
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
-            {isEditMode ? (isSubmitting ? "Saving..." : "Save Changes") : (isSubmitting ? "Creating..." : "Create User")}
+            {isEditMode
+              ? isSubmitting
+                ? "Saving..."
+                : "Save Changes"
+              : isSubmitting
+              ? "Creating..."
+              : "Create User"}
           </Button>
         </div>
       </form>

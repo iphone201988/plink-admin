@@ -113,8 +113,13 @@ export const apis = createApi({
                 method: 'GET'
             }),
         }),
-
+        getCourts: builder.query<any, { page?: number } | void>({
+            query: ({ page = 1 } = {}) => ({
+              url: `/dashboard/all-courts?page=${page}`,
+              method: 'GET',
+            }),
+          })    
     }),
 });
 
-export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery } = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery , useGetCourtsQuery} = apis;
