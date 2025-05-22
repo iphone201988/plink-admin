@@ -20,3 +20,20 @@ export const formatISODate = (isoDateString:any) => {
       year: 'numeric' // Full year (e.g., "2025")
   });
 };
+
+const courtType = {
+  Dedicated: 1,
+  Reservable: 2,
+  Lighted: 3,
+  Indoor: 4,
+  Outdoor: 5,
+  "Permanent lines": 6,
+} as const;
+
+type CourtTypeKey = keyof typeof courtType;
+type CourtTypeValue = (typeof courtType)[CourtTypeKey];
+
+export const getCourtTypeKey = (value: CourtTypeValue): CourtTypeKey | undefined =>
+  Object.keys(courtType).find(
+    (key) => courtType[key as CourtTypeKey] === value
+  ) as CourtTypeKey | undefined;

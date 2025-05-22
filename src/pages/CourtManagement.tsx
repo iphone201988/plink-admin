@@ -11,6 +11,7 @@ import { showToast } from "@/lib/toastManager";
 import { Court } from "@/types";
 import { pageTransition } from "@/lib/animations";
 import { useGetCourtsQuery } from "@/api";
+import { getCourtTypeKey } from "@/lib/helper";
 
 export default function CourtManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +32,7 @@ export default function CourtManagement() {
       name: court?.title,
       location: court?.address,
       status: court?.status,
-      courtType: court?.courtType,
+      courtType: getCourtTypeKey(court?.courtType),
       capacity:court?.courtCount,
       // createdAt: formatISODate(court?.createdAt),
       amenities: ["Lighting", "Seating", "Water Station"]
