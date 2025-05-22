@@ -1,23 +1,26 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search, Edit, Trash2, MapPin } from "lucide-react";
+import { Plus, Search, Edit, Trash2, MapPin,ShieldCheck  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { showToast } from "@/lib/toastManager";
+// import { showToast } from "@/lib/toastManager";
 import { Court } from "@/types";
 import { pageTransition } from "@/lib/animations";
-import { useGetCourtsQuery } from "@/api";
+import { useDeleteCourtMutation, useGetCourtsQuery } from "@/api";
 import { getCourtTypeKey } from "@/lib/helper";
+import { toast } from "@/hooks/use-toast";
 
 export default function CourtManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [deleteCourt] =useDeleteCourtMutation()
 
   const {data:courtData} = useGetCourtsQuery({
     page: currentPage
@@ -34,105 +37,52 @@ export default function CourtManagement() {
       status: court?.status,
       courtType: getCourtTypeKey(court?.courtType),
       capacity:court?.courtCount,
-      // createdAt: formatISODate(court?.createdAt),
       amenities: ["Lighting", "Seating", "Water Station"]
     }));
   }, [courtData]);
   
   
-  // Sample data - in a real app, this would come from API
-  // const [courts, setCourts] = useState<Court[]>([
-  //   {
-  //     id: 1,
-  //     name: "Main Court",
-  //     location: "Central Park",
-  //     courtType: "Tennis",
-  //     status: "Active",
-  //     capacity: 4,
-  //     amenities: ["Lighting", "Seating", "Water Station"]
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Court A",
-  //     location: "Sports Complex",
-  //     courtType: "Pickleball",
-  //     status: "Active",
-  //     capacity: 4,
-  //     amenities: ["Lighting", "Seating"]
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Court B",
-  //     location: "Sports Complex",
-  //     courtType: "Tennis",
-  //     status: "Maintenance",
-  //     capacity: 4,
-  //     amenities: ["Water Station"]
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Youth Court",
-  //     location: "Community Center",
-  //     courtType: "Pickleball",
-  //     status: "Active",
-  //     capacity: 6,
-  //     amenities: ["Lighting", "Seating", "Restrooms", "Water Station"]
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Practice Court",
-  //     location: "Training Facility",
-  //     courtType: "Tennis",
-  //     status: "Active",
-  //     capacity: 2,
-  //     amenities: ["Lighting"]
-  //   }
-  // ]);
-  
   const handleEditCourt = (court: Court) => {
-    showToast({ 
-      title: "Edit Court",
-      description: `Editing ${court.name}`,
-      variant: "default"
-    });
-  };
-  
-  const handleDeleteCourt = (courtId: number) => {
-    const court = courts.find((c:any) => c.id === courtId);
-    
-    // setCourts(prevCourts => prevCourts.filter(court => court.id !== courtId));
-    
-    showToast({
-      title: "Court Deleted",
-      description: `${court?.name} has been removed`,
+    toast({ 
+      title: "pending",
+      description: `this functionality is under development`,
       variant: "destructive"
     });
   };
   
+  const handleDeleteCourt = async(courtId: number) => {
+     deleteCourt({
+      type:1,
+      courtId:courtId
+    }).unwrap()
+    const court = courts.find((c:any) => c.id === courtId);
+    toast({
+      title: "Court Deleted",
+      description: `${court?.name} has been removed`,
+      variant: "success",
+      position: "topRight"
+    });
+  };
+  
   const handleToggleCourtStatus = (courtId: number) => {
-    // setCourts(prevCourts => 
-    //   prevCourts.map(court => 
-    //     court.id === courtId 
-    //       ? { 
-    //           ...court, 
-    //           status: court.status === "Active" ? "Maintenance" : "Active" 
-    //         } 
-    //       : court
-    //   )
-    // );
+    deleteCourt({
+      type:2,
+      courtId:courtId
+    }).unwrap()
     
     const court = courts.find((c:any) => c.id === courtId);
-    const newStatus = court?.status === "Active" ? "Maintenance" : "Active";
-    
-    showToast({
+    const newStatus = court?.status === "active" ? "Maintenance" : "Active";
+
+    toast({
       title: "Status Updated",
       description: `${court?.name} is now in ${newStatus}`,
-      variant: newStatus === "Active" ? "success" : "destructive"
+      variant: newStatus === "Active" ? "success" : "destructive",
+      position: "topRight"
     });
   };
   
   const handleAddCourt = () => {
-    showToast({
+    toast({
       title: "Add Court",
       description: "Court creation form would open here",
       variant: "default"
@@ -289,7 +239,7 @@ export default function CourtManagement() {
                             <Edit className="h-4 w-4 text-primary hover:text-blue-700" />
                           </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleToggleCourtStatus(court.id)}>
-                            {court.status === "Active" ? (
+                            {court.status !== "active" ? (
                               <span className="text-warning hover:text-yellow-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M6 12h12"></path>
@@ -374,7 +324,7 @@ export default function CourtManagement() {
                           onClick={() => handleToggleCourtStatus(court.id)}
                           className="flex-1"
                         >
-                          {court.status === "Active" ? "Maintenance" : "Activate"}
+                          {court.status === "active" ? "Maintenance" : "Activate"}
                         </Button>
                       </div>
                     </CardContent>

@@ -16,7 +16,7 @@ export const apis = createApi({
             return headers;
         },
     }),
-    tagTypes: ['User', 'User_M',"GROUP_M"],
+    tagTypes: ['User', 'User_M',"GROUP_M","COURT_M"],
     endpoints: (builder) => ({
         adminLogin: builder.mutation<SignupResponse, SignupRequest>({
             query: (userData) => ({
@@ -118,8 +118,17 @@ export const apis = createApi({
               url: `/dashboard/all-courts?page=${page}`,
               method: 'GET',
             }),
+            providesTags:["COURT_M"]
+          })  ,  
+        deleteCourt: builder.mutation<any, any>({
+            query: (body) => ({
+              url: `/dashboard/active-delete-court`,
+              method: 'POSt',
+              body
+            }),
+            invalidatesTags:["COURT_M"]
           })    
     }),
 });
 
-export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery , useGetCourtsQuery} = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery , useGetCourtsQuery, useDeleteCourtMutation} = apis;

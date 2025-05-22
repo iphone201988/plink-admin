@@ -8,11 +8,12 @@ import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GroupModal } from "@/components/groups/GroupModal";
 import { DeleteConfirmationDialog } from "@/components/ui/DeleteConfirmationDialog";
-import { showToast } from "@/lib/toastManager";
+// import { showToast } from "@/lib/toastManager";
 import { Group } from "@/types";
 import { pageTransition } from "@/lib/animations";
 import { useDeleteGroupMutation, useEditGroupMutation, useGetGroupDataQuery } from "@/api";
 import { formatISODate } from "@/lib/helper";
+import { toast } from "@/hooks/use-toast";
 
 export default function GroupManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,7 +67,7 @@ export default function GroupManagement() {
       }).unwrap();
 
       
-      showToast({ 
+      toast({ 
         title: "Group Updated",
         description: `${groupData.name || activeGroup.name} was updated successfully`,
         variant: "success"
@@ -83,7 +84,7 @@ export default function GroupManagement() {
     if (activeGroup) {
       // setGroups(prevGroups => prevGroups.filter(group => group.id !== activeGroup.id));
       deleteGroup
-      showToast({
+      toast({
         title: "Group Deleted",
         description: `${activeGroup.name} has been removed`,
         variant: "destructive"
@@ -105,7 +106,7 @@ export default function GroupManagement() {
   };
   
   const handleViewMembers = (group: Group) => {
-    showToast({
+    toast({
       title: `${group.name} Members`,
       description: `Viewing ${group.members} members`,
       variant: "default"
