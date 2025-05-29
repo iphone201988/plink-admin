@@ -13,12 +13,14 @@ import { pageTransition } from "@/lib/animations";
 import { useDeleteCourtMutation, useGetCourtsQuery } from "@/api";
 import { getCourtTypeKey } from "@/lib/helper";
 import { toast } from "@/hooks/use-toast";
+import { CourtModal } from "@/components/court/CourModal";
 
 export default function CourtManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [currentPage, setCurrentPage] = useState(1);
+  const [addCourt, setAddCourt] = useState<boolean>(false);
 
   const [deleteCourt] =useDeleteCourtMutation()
 
@@ -82,11 +84,12 @@ export default function CourtManagement() {
   };
   
   const handleAddCourt = () => {
-    toast({
-      title: "Add Court",
-      description: "Court creation form would open here",
-      variant: "default"
-    });
+    // toast({
+    //   title: "Add Court",
+    //   description: "Court creation form would open here",
+    //   variant: "default"
+    // });
+    setAddCourt(true);
   };
   
   const getStatusBadge = (status: string) => {
@@ -380,6 +383,13 @@ export default function CourtManagement() {
           </div>
         </CardFooter>
       </Card>
+
+      <CourtModal
+      isOpen={addCourt}
+      onClose={() => setAddCourt(false)}
+
+      />
+
     </motion.div>
   );
 }
