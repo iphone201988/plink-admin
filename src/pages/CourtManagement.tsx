@@ -29,7 +29,7 @@ import {
 // import { showToast } from "@/lib/toastManager";
 import { Court } from "@/types";
 import { pageTransition } from "@/lib/animations";
-import { useDeleteCourtMutation, useGetCourtsQuery, useUpdateCourtMutation } from "@/api";
+import { useDeleteCourtMutation, useGetCourtsQuery } from "@/api";
 import { getCourtTypeKey } from "@/lib/helper";
 import { toast } from "@/hooks/use-toast";
 import { CourtModal } from "@/components/court/CourModal";
@@ -40,13 +40,13 @@ export default function CourtManagement() {
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [open, setOpen] = useState<boolean>(false);
+  const [edit, setEdit] = useState<boolean>(false);
   const [activeCourt, setActiveCourt] = useState<Court | any>(null);
   const [submittedCourt, setSubmittedCourt] = useState<Partial<Court> | null>(null);
 
 
   const [deleteCourt] = useDeleteCourtMutation();
-  const [updateCourt] = useUpdateCourtMutation();
-
+ 
   const { data: courtData } = useGetCourtsQuery({
     page: currentPage,
   });
@@ -82,12 +82,13 @@ export default function CourtManagement() {
     console.log("Editing court:", court);
     setActiveCourt(court);
     setOpen(true);
+    setEdit(true);
 
-    toast({
-      title: "pending",
-      description: `this functionality is under development`,
-      variant: "destructive",
-    });
+    // toast({
+    //   title: "pending",
+    //   description: `this functionality is under development`,
+    //   variant: "destructive",
+    // });
   };
 
   const handleDeleteCourt = async (courtId: number) => {
@@ -566,6 +567,7 @@ export default function CourtManagement() {
         onClose={() => setOpen(false)}
         court={activeCourt}
         onSubmit={(court: Partial<Court|any>) => handleCourtSubmit(court)}
+        edit={edit}
       />
     </motion.div>
   );

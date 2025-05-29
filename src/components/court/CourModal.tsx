@@ -8,19 +8,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useLoadScript, GoogleMap, Marker } from "@react-google-maps/api";
-import { useAddCourtMutation } from "@/api";
+import { useAddCourtMutation, useUpdateCourtMutation } from "@/api";
 import { toast } from "@/hooks/use-toast";
 
 const libraries: ("places" | "marker")[] = ["places", "marker"];
 
 interface CourtModalProps {
   isOpen: boolean;
+  edit: boolean;
   onClose: () => void;
   onSubmit?: (court: Partial<Court>) => void;
   court?: Court;
 }
 
 interface Court {
+  id:string;
   title: string;
   description: string;
   phoneNumber: string;
@@ -74,12 +76,14 @@ const defaultCenter = {
   lng: 76.8021,
 };
 
-export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps) {
+export function CourtModal({ isOpen, onClose, onSubmit, court, edit }: CourtModalProps) {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
- const [addCourt] = useAddCourtMutation();
+  const [addCourt] = useAddCourtMutation();
+  const [updateCourt] = useUpdateCourtMutation();
+
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyC1BydibI3lXzAZ2xMpSK7C8pLQyjx9IeY",
@@ -146,7 +150,7 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
 
   const handleSubmit = async (values: CourtFormValues) => {
     const formData = new FormData();
-  
+
     // Append form values to FormData
     formData.append("title", values.title);
     formData.append("description", values.description);
@@ -164,21 +168,33 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
     formData.append("location[type]", "Point");
     formData.append("location[coordinates][0]", values.longitude.toString());
     formData.append("location[coordinates][1]", values.latitude.toString());
-  
+
     // Append images to FormData
     selectedImages.forEach((image, index) => {
       formData.append("images", image, `court${index + 1}.png`);
     });
-  
+
     try {
       // Assuming addCourt is configured to handle FormData
-      await addCourt(formData).unwrap();
-      toast({
-        title: "Court created",
-        description: "Court is created successfully",
-        variant: "success",
-      });
-  
+      if (edit) {
+        await updateCourt({
+          id:court?.id,
+          body:formData
+        }).unwrap();
+        toast({
+          title: "Court edited",
+          description: "Court edited successfully",
+          variant: "success",
+        });
+      } else {
+        await addCourt(formData).unwrap();
+        toast({
+          title: "Court created",
+          description: "Court added successfully",
+          variant: "success",
+        });
+      }
+
       // Call onSubmit with the original courtData for compatibility
       const courtData: Partial<Court> = {
         ...values,
@@ -352,10 +368,10 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
                   mapContainerStyle={mapContainerStyle}
                   center={
                     markerPosition || (court?.latitude && court?.longitude)
-                      ? { 
-                          lat: court?.latitude || markerPosition?.lat || defaultCenter.lat, 
-                          lng: court?.longitude || markerPosition?.lng || defaultCenter.lng 
-                        }
+                      ? {
+                        lat: court?.latitude || markerPosition?.lat || defaultCenter.lat,
+                        lng: court?.longitude || markerPosition?.lng || defaultCenter.lng
+                      }
                       : defaultCenter
                   }
                   zoom={15}
@@ -365,7 +381,7 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
                   {(markerPosition || (court?.latitude && court?.longitude)) && (
                     <Marker
                       position={
-                        markerPosition || 
+                        markerPosition ||
                         { lat: court!.latitude, lng: court!.longitude }
                       }
                     />
