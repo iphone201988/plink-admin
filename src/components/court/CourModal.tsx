@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { useLoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import { useAddCourtMutation } from "@/api";
+import { toast } from "@/hooks/use-toast";
 
 const libraries: ("places" | "marker")[] = ["places", "marker"];
 
@@ -77,6 +79,8 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
   const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
+ const [addCourt] = useAddCourtMutation();
+
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyC1BydibI3lXzAZ2xMpSK7C8pLQyjx9IeY",
     libraries,
@@ -140,17 +144,59 @@ export function CourtModal({ isOpen, onClose, onSubmit, court }: CourtModalProps
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (values: CourtFormValues) => {
-    const courtData: Partial<Court> = {
-      ...values,
-      location: {
-        type: "Point",
-        coordinates: [values.longitude, values.latitude],
-      },
-      images: selectedImages.map((_, index) => `court${index + 1}.png`),
-    };
-    onSubmit?.(courtData);
-    onClose();
+  const handleSubmit = async (values: CourtFormValues) => {
+    const formData = new FormData();
+  
+    // Append form values to FormData
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("phoneNumber", values.phoneNumber);
+    formData.append("countryCode", values.countryCode);
+    formData.append("websiteLink", values.websiteLink);
+    formData.append("latitude", values.latitude.toString());
+    formData.append("longitude", values.longitude.toString());
+    formData.append("net", values.net);
+    formData.append("surface", values.surface);
+    formData.append("address", values.address);
+    formData.append("courtCount", values.courtCount.toString());
+    formData.append("courtType", values.courtType.toString());
+    formData.append("accessType", values.accessType.toString());
+    formData.append("location[type]", "Point");
+    formData.append("location[coordinates][0]", values.longitude.toString());
+    formData.append("location[coordinates][1]", values.latitude.toString());
+  
+    // Append images to FormData
+    selectedImages.forEach((image, index) => {
+      formData.append("images", image, `court${index + 1}.png`);
+    });
+  
+    try {
+      // Assuming addCourt is configured to handle FormData
+      await addCourt(formData).unwrap();
+      toast({
+        title: "Court created",
+        description: "Court is created successfully",
+        variant: "success",
+      });
+  
+      // Call onSubmit with the original courtData for compatibility
+      const courtData: Partial<Court> = {
+        ...values,
+        location: {
+          type: "Point",
+          coordinates: [values.longitude, values.latitude],
+        },
+        images: selectedImages.map((_, index) => `court${index + 1}.png`),
+      };
+      onSubmit?.(courtData);
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create court. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {

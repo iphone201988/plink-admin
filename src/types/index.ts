@@ -68,13 +68,22 @@ export interface Event {
 
 // Court Types
 export interface Court {
-  id: number;
-  name: string;
-  location: string;
-  courtType: string;
+  id: string;
+  title: string;
+  description: string;
+  phoneNumber: number;
+  countryCode: number;
+  images: string[];
+  address: string;
+  courtCount: number;
+  courtType: number;
+  accessType: number;
   status: string;
-  capacity: number;
-  amenities: string[];
+  websiteLink:string;
+  latitude:number ; 
+  longitude:number ;
+  net:string;
+  surface:string
 }
 
 // Availability Types
