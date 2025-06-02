@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Save, 
-  User, 
-  Lock, 
-  Mail, 
-  Bell, 
-  PaintBucket, 
-  Palette, 
-  Globe, 
-  Languages, 
-  Shield, 
-  Smartphone 
+import {
+  Save,
+  User,
+  Lock,
+  Mail,
+  Bell,
+  PaintBucket,
+  Palette,
+  Globe,
+  Languages,
+  Shield,
+  Smartphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -26,20 +26,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTheme, Theme } from "@/components/ThemeProvider";
 import { pageTransition, slideUp } from "@/lib/animations";
 import { toast } from "@/hooks/use-toast";
+import { useGetAdminDetailsQuery, useUpdateAdminPasswordMutation } from "@/api";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<string>("profile");
-  
-  // Form states
+
+  const { data: adminData } = useGetAdminDetailsQuery({});
+  const [updateAdminPassword] = useUpdateAdminPasswordMutation()
+
   const [profileForm, setProfileForm] = useState({
-    firstName: "Admin",
-    lastName: "User",
-    email: "admin@plink.com",
-    phone: "(555) 123-4567",
-    bio: "System administrator for Plink platform."
+    name: '',
+    email: '',
+    phoneNumber: '',
+    countryCode: '',
+    profileImage: '',
+    gender: '',
+    bio: 'System administrator for Plink platform.'
   });
-  
+
+  const [password, setPassword] = useState({
+    newPassword:'',
+    currentPassword:'',
+    confirmPassword:''
+  });
+
+  useEffect(() => {
+    if (adminData?.adminDetails) {
+      setProfileForm({
+        name: adminData.adminDetails.name || '',
+        email: adminData.adminDetails.email || '',
+        phoneNumber: adminData.adminDetails.phoneNumber || '',
+        countryCode: adminData.adminDetails.countryCode || '',
+        profileImage: `${import.meta.env.VITE_BASE_URL}${adminData.adminDetails.profileImage || ''}`,
+        gender: adminData.adminDetails.gender || '',
+        bio: 'System administrator for Plink platform.'
+      });
+    }
+  }, [adminData]);
+
+
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -47,7 +74,7 @@ export default function Settings() {
     activitySummary: true,
     securityAlerts: true
   });
-  
+
   const [appearanceSettings, setAppearanceSettings] = useState({
     theme: theme,
     accentColor: "blue",
@@ -55,14 +82,14 @@ export default function Settings() {
     reduceMotion: false,
     sidebarCollapsed: false
   });
-  
+
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     sessionTimeout: "30",
     loginAlerts: true,
     ipRestriction: false
   });
-  
+
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -71,16 +98,20 @@ export default function Settings() {
       variant: "default"
     });
   };
-  
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+   await updateAdminPassword({
+      newPassword:password.newPassword,
+      oldPassword:password.currentPassword
+    }).unwrap();
     toast({
-      title: "Settings Saved",
-      description: "Your settings have been saved successfully.",
+      title: "Password updated",
+      description: "Password updated successfully",
       variant: "default"
     });
   };
-  
+
   const handleNotificationUpdate = () => {
     toast({
       title: "Settings Saved",
@@ -88,17 +119,18 @@ export default function Settings() {
       variant: "success"
     });
   };
-  
+
+
   const handleAppearanceUpdate = () => {
     setTheme(appearanceSettings.theme as "light" | "dark" | "system");
-    
+
     toast({
       title: "Settings Saved",
       description: "Your settings have been saved successfully.",
       variant: "success"
     });
   };
-  
+
   const handleSecurityUpdate = () => {
     toast({
       title: "Settings Saved",
@@ -106,7 +138,7 @@ export default function Settings() {
       variant: "success"
     });
   };
-  
+
   return (
     <motion.div
       variants={pageTransition}
@@ -118,7 +150,7 @@ export default function Settings() {
         <CardHeader className="p-6 border-b border-gray-100 dark:border-gray-700">
           <CardTitle>Settings</CardTitle>
         </CardHeader>
-        
+
         <CardContent className="p-6">
           <Tabs defaultValue="profile" onValueChange={setActiveTab}>
             <TabsList className="mb-8 grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -138,7 +170,7 @@ export default function Settings() {
                 <Smartphone className="h-4 w-4" /> Advanced
               </TabsTrigger>
             </TabsList>
-            
+
             {/* Profile Settings */}
             <TabsContent value="profile">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -146,106 +178,155 @@ export default function Settings() {
                   <h3 className="text-lg font-medium text-textDark dark:text-white mb-4">Personal Information</h3>
                   <form onSubmit={handleProfileUpdate}>
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input 
-                            id="firstName" 
-                            value={profileForm.firstName} 
-                            onChange={(e) => setProfileForm({
-                              ...profileForm,
-                              firstName: e.target.value
-                            })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input 
-                            id="lastName" 
-                            value={profileForm.lastName} 
-                            onChange={(e) => setProfileForm({
-                              ...profileForm,
-                              lastName: e.target.value
-                            })}
-                          />
+                      {/* Profile Image Section */}
+                      <div className="space-y-2">
+                        <Label>Profile Image</Label>
+                        <div className="flex items-center space-x-4">
+
+                          <Avatar>
+
+                            <AvatarImage className="h-10 w-10" src={profileForm?.profileImage} alt={"Profile"} />
+                          </Avatar>
+
+                          <Button type="button" variant="outline" size="sm">
+                            Change Photo
+                          </Button>
                         </div>
                       </div>
-                      
+
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input
+                        disabled
+                          id="name"
+                          value={profileForm.name || "plink"}
+                          onChange={(e) => setProfileForm({
+                            ...profileForm,
+                            name: e.target.value
+                          })}
+                        />
+                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          value={profileForm.email} 
+                        <Input
+                          id="email"
+                          type="email"
+                        disabled
+                          value={profileForm.email || "plink@yopmail.com"}
                           onChange={(e) => setProfileForm({
                             ...profileForm,
                             email: e.target.value
                           })}
                         />
                       </div>
-                      
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="countryCode">Country Code</Label>
+                          <Input
+                            id="countryCode"
+                        disabled
+                            value={profileForm.countryCode || "91"}
+                            onChange={(e) => setProfileForm({
+                              ...profileForm,
+                              countryCode: e.target.value
+                            })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phoneNumber">Phone Number</Label>
+                          <Input
+                            id="phoneNumber"
+                        disabled
+                            value={profileForm.phoneNumber || "8254362563"}
+                            onChange={(e) => setProfileForm({
+                              ...profileForm,
+                              phoneNumber: e.target.value
+                            })}
+                          />
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input 
-                          id="phone" 
-                          value={profileForm.phone} 
+                        <Label htmlFor="gender">Gender</Label>
+                        <select
+                          id="gender"
+                        disabled
+                          value={profileForm.gender || "Male"}
                           onChange={(e) => setProfileForm({
                             ...profileForm,
-                            phone: e.target.value
+                            gender: e.target.value
                           })}
-                        />
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="bio">Bio</Label>
-                        <Textarea 
-                          id="bio" 
-                          value={profileForm.bio} 
-                          onChange={(e) => setProfileForm({
-                            ...profileForm,
-                            bio: e.target.value
-                          })}
-                          rows={4}
-                        />
-                      </div>
-                      
-                      <Button type="submit" className="mt-2">
+
+                      {/* <Button type="submit" className="mt-2">
                         <Save className="h-4 w-4 mr-2" />
                         Save Changes
-                      </Button>
+                      </Button> */}
                     </div>
                   </form>
                 </div>
-                
+
                 <div>
                   <h3 className="text-lg font-medium text-textDark dark:text-white mb-4">Password</h3>
                   <form onSubmit={handlePasswordUpdate}>
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="currentPassword">Current Password</Label>
-                        <Input id="currentPassword" type="password" />
+                        <Input id="currentPassword" type="password"
+                          onChange={(e) => setPassword({
+                            ...password,
+                            currentPassword: e.target.value
+                          })}
+                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="newPassword">New Password</Label>
-                        <Input id="newPassword" type="password" />
+                        <Input id="newPassword" type="password" 
+                         onChange={(e) => setPassword({
+                            ...password,
+                            newPassword: e.target.value
+                          })}
+                        />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                        <Input id="confirmPassword" type="password" />
+                        <Input id="confirmPassword" type="password" 
+                        onChange={(e) => setPassword({
+                            ...password,
+                            confirmPassword: e.target.value
+                          })}
+                        />
                       </div>
-                      
+
                       <Button type="submit" className="mt-2">
                         <Lock className="h-4 w-4 mr-2" />
                         Update Password
                       </Button>
                     </div>
                   </form>
+
+                  {/* Account Information Display */}
+                  <div className="mt-8">
+                    <h3 className="text-lg font-medium text-textDark dark:text-white mb-4">Account Information</h3>
+                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <p><span className="font-medium">Account ID:</span> {adminData?.adminDetails?._id}</p>
+                      <p><span className="font-medium">Member Since:</span> {new Date().toLocaleDateString()}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Notification Settings */}
             <TabsContent value="notifications">
               <div>
@@ -256,79 +337,79 @@ export default function Settings() {
                       <h4 className="text-base font-medium text-textDark dark:text-white">Email Notifications</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive notifications via email</p>
                     </div>
-                    <Switch 
-                      checked={notificationSettings.emailNotifications} 
+                    <Switch
+                      checked={notificationSettings.emailNotifications}
                       onCheckedChange={(checked) => setNotificationSettings({
                         ...notificationSettings,
                         emailNotifications: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Push Notifications</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive notifications in-app and on mobile</p>
                     </div>
-                    <Switch 
-                      checked={notificationSettings.pushNotifications} 
+                    <Switch
+                      checked={notificationSettings.pushNotifications}
                       onCheckedChange={(checked) => setNotificationSettings({
                         ...notificationSettings,
                         pushNotifications: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Marketing Emails</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive promotional emails and offers</p>
                     </div>
-                    <Switch 
-                      checked={notificationSettings.marketingEmails} 
+                    <Switch
+                      checked={notificationSettings.marketingEmails}
                       onCheckedChange={(checked) => setNotificationSettings({
                         ...notificationSettings,
                         marketingEmails: checked
                       })}
                     />
-                  </div>
-                  
+                  </div>  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Activity Summary</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive weekly summary of platform activity</p>
                     </div>
-                    <Switch 
-                      checked={notificationSettings.activitySummary} 
+                    <Switch
+                      checked={notificationSettings.activitySummary}
                       onCheckedChange={(checked) => setNotificationSettings({
                         ...notificationSettings,
                         activitySummary: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Security Alerts</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive alerts about security events</p>
                     </div>
-                    <Switch 
-                      checked={notificationSettings.securityAlerts} 
+                    <Switch
+                      checked={notificationSettings.securityAlerts}
                       onCheckedChange={(checked) => setNotificationSettings({
                         ...notificationSettings,
                         securityAlerts: checked
                       })}
                     />
                   </div>
-                  
+
                   <Button onClick={handleNotificationUpdate} className="mt-4">
                     <Save className="h-4 w-4 mr-2" />
                     Save Preferences
@@ -336,7 +417,7 @@ export default function Settings() {
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Appearance Settings */}
             <TabsContent value="appearance">
               <div>
@@ -344,8 +425,8 @@ export default function Settings() {
                 <div className="space-y-6">
                   <div className="space-y-3">
                     <Label htmlFor="theme">Theme</Label>
-                    <RadioGroup 
-                      value={appearanceSettings.theme} 
+                    <RadioGroup
+                      value={appearanceSettings.theme}
                       onValueChange={(value) => setAppearanceSettings({
                         ...appearanceSettings,
                         theme: value as Theme
@@ -366,13 +447,13 @@ export default function Settings() {
                       </div>
                     </RadioGroup>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="accentColor">Accent Color</Label>
-                    <Select 
-                      value={appearanceSettings.accentColor} 
+                    <Select
+                      value={appearanceSettings.accentColor}
                       onValueChange={(value) => setAppearanceSettings({
                         ...appearanceSettings,
                         accentColor: value
@@ -390,13 +471,13 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="fontSize">Font Size</Label>
-                    <Select 
-                      value={appearanceSettings.fontSize} 
+                    <Select
+                      value={appearanceSettings.fontSize}
                       onValueChange={(value) => setAppearanceSettings({
                         ...appearanceSettings,
                         fontSize: value
@@ -412,39 +493,39 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Reduce Motion</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Decrease animation effects throughout the interface</p>
                     </div>
-                    <Switch 
-                      checked={appearanceSettings.reduceMotion} 
+                    <Switch
+                      checked={appearanceSettings.reduceMotion}
                       onCheckedChange={(checked) => setAppearanceSettings({
                         ...appearanceSettings,
                         reduceMotion: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Sidebar Collapsed by Default</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Start with sidebar collapsed to maximize screen space</p>
                     </div>
-                    <Switch 
-                      checked={appearanceSettings.sidebarCollapsed} 
+                    <Switch
+                      checked={appearanceSettings.sidebarCollapsed}
                       onCheckedChange={(checked) => setAppearanceSettings({
                         ...appearanceSettings,
                         sidebarCollapsed: checked
                       })}
                     />
                   </div>
-                  
+
                   <Button onClick={handleAppearanceUpdate} className="mt-4">
                     <Palette className="h-4 w-4 mr-2" />
                     Save Appearance
@@ -452,7 +533,7 @@ export default function Settings() {
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Security Settings */}
             <TabsContent value="security">
               <div>
@@ -463,21 +544,21 @@ export default function Settings() {
                       <h4 className="text-base font-medium text-textDark dark:text-white">Two-Factor Authentication</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Add an extra layer of security to your account</p>
                     </div>
-                    <Switch 
-                      checked={securitySettings.twoFactorAuth} 
+                    <Switch
+                      checked={securitySettings.twoFactorAuth}
                       onCheckedChange={(checked) => setSecuritySettings({
                         ...securitySettings,
                         twoFactorAuth: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
-                    <Select 
-                      value={securitySettings.sessionTimeout} 
+                    <Select
+                      value={securitySettings.sessionTimeout}
                       onValueChange={(value) => setSecuritySettings({
                         ...securitySettings,
                         sessionTimeout: value
@@ -495,39 +576,39 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Login Alerts</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Receive email alerts for new login attempts</p>
                     </div>
-                    <Switch 
-                      checked={securitySettings.loginAlerts} 
+                    <Switch
+                      checked={securitySettings.loginAlerts}
                       onCheckedChange={(checked) => setSecuritySettings({
                         ...securitySettings,
                         loginAlerts: checked
                       })}
                     />
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">IP Restriction</h4>
                       <p className="text-sm text-textLight dark:text-gray-400">Limit access to specific IP addresses</p>
                     </div>
-                    <Switch 
-                      checked={securitySettings.ipRestriction} 
+                    <Switch
+                      checked={securitySettings.ipRestriction}
                       onCheckedChange={(checked) => setSecuritySettings({
                         ...securitySettings,
                         ipRestriction: checked
                       })}
                     />
                   </div>
-                  
+
                   <Button onClick={handleSecurityUpdate} className="mt-4">
                     <Shield className="h-4 w-4 mr-2" />
                     Save Security Settings
@@ -535,7 +616,7 @@ export default function Settings() {
                 </div>
               </div>
             </TabsContent>
-            
+
             {/* Advanced Settings */}
             <TabsContent value="advanced">
               <div>
@@ -556,9 +637,9 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select defaultValue="utc">
@@ -574,9 +655,9 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="dateFormat">Date Format</Label>
                     <Select defaultValue="mdy">
@@ -590,9 +671,9 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-base font-medium text-textDark dark:text-white">Data Export</h4>
@@ -607,9 +688,9 @@ export default function Settings() {
                       <span className="ml-2">Export Data</span>
                     </Button>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-base font-medium text-danger">Danger Zone</h4>

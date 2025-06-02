@@ -15,11 +15,61 @@ import { useDeleteGroupMutation, useEditGroupMutation, useGetGroupDataQuery } fr
 import { formatISODate } from "@/lib/helper";
 import { toast } from "@/hooks/use-toast";
 
+// Skeleton Components
+const SkeletonBadge = () => (
+  <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mr-3"></div>
+);
+
+const SkeletonText = ({ width = "w-full" }: { width?: string }) => (
+  <div className={`h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ${width}`}></div>
+);
+
+const SkeletonButton = () => (
+  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+);
+
+const SkeletonTableRow = () => (
+  <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+    <TableCell>
+      <div className="flex items-center">
+        <SkeletonBadge />
+        <SkeletonText width="w-24" />
+      </div>
+    </TableCell>
+    <TableCell>
+      <SkeletonText width="w-32" />
+    </TableCell>
+    <TableCell>
+      <SkeletonText width="w-8" />
+    </TableCell>
+    <TableCell>
+      <SkeletonText width="w-20" />
+    </TableCell>
+    <TableCell>
+      <div className="flex space-x-2">
+        <SkeletonButton />
+        <SkeletonButton />
+        <SkeletonButton />
+      </div>
+    </TableCell>
+  </TableRow>
+);
+
+const SkeletonPagination = () => (
+  <div className="flex space-x-1">
+    <SkeletonButton />
+    <SkeletonButton />
+    <SkeletonButton />
+    <SkeletonButton />
+    <SkeletonButton />
+  </div>
+);
+
 export default function GroupManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: groupData } = useGetGroupDataQuery({
+  const { data: groupData, isLoading } = useGetGroupDataQuery({
     page: currentPage,
     limit: 6
   });
@@ -124,6 +174,7 @@ export default function GroupManagement() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+
   return (
     <motion.div
       variants={pageTransition}
@@ -140,9 +191,10 @@ export default function GroupManagement() {
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            disabled={isLoading}
           />
         </div>
-        {/* <Button onClick={handleAddGroup}>
+        {/* <Button onClick={handleAddGroup} disabled={isLoading}>
           <Plus className="h-4 w-4 mr-2" />
           <span>Add Group</span>
         </Button> */}
@@ -166,7 +218,12 @@ export default function GroupManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredGroups.length > 0 ? (
+              {isLoading ? (
+                // Skeleton Loading Rows
+                Array.from({ length: 6 }, (_, index) => (
+                  <SkeletonTableRow key={`skeleton-${index}`} />
+                ))
+              ) : filteredGroups.length > 0 ? (
                 filteredGroups.map((group:any) => (
                   <TableRow key={group.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     <TableCell>
@@ -207,44 +264,53 @@ export default function GroupManagement() {
         </div>
         
         <CardFooter className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-          <p className="text-sm text-textLight dark:text-gray-400">
-            Showing {groupData?.pagination?.perPage} of {groupData?.pagination?.totalItems} users
-          </p>
-          <div className="flex space-x-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
-              onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={currentPage === page ? "default" : "outline"}
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
-              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </Button>
-          </div>
+          {isLoading ? (
+            <>
+              <SkeletonText width="w-32" />
+              <SkeletonPagination />
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-textLight dark:text-gray-400">
+                Showing {groupData?.pagination?.perPage} of {groupData?.pagination?.totalItems} users
+              </p>
+              <div className="flex space-x-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
+                  onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="icon"
+                    className="w-8 h-8"
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400"
+                  onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </Button>
+              </div>
+            </>
+          )}
         </CardFooter>
       </Card>
       

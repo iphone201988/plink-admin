@@ -19,19 +19,147 @@ import { pageTransition, staggerContainer, slideUp } from "@/lib/animations";
 import { useEditUserMutation, useGetDashboardDataQuery } from "@/api";
 import React from "react";
 
+// Skeleton Components
+const StatsSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm animate-pulse">
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+      </div>
+      <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    </div>
+    <div className="mt-4 h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+  </div>
+);
+
+const UserTableSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-gray-100 dark:border-gray-700">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <th key={i} className="text-left p-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="border-b border-gray-50 dark:border-gray-800">
+              <td className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                  </div>
+                </div>
+              </td>
+              <td className="p-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              </td>
+              <td className="p-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+              </td>
+              <td className="p-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              </td>
+              <td className="p-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+              </td>
+              <td className="p-4">
+                <div className="flex space-x-2">
+                  <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const UserCardSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm animate-pulse">
+    <div className="flex items-center space-x-4 mb-4">
+      <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+      <div className="flex-1">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+      </div>
+    </div>
+    <div className="space-y-2 mb-4">
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+    </div>
+    <div className="flex justify-between items-center">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+      <div className="flex space-x-2">
+        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const CalendarSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm animate-pulse">
+    <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+    </div>
+    <div className="p-6">
+      <div className="grid grid-cols-7 gap-1 mb-4">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({ length: 35 }).map((_, i) => (
+          <div key={i} className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const UpcomingEventsSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm animate-pulse">
+    <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+    </div>
+    <div className="p-6 space-y-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex items-center space-x-3 p-3 border border-gray-100 dark:border-gray-700 rounded">
+          <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function Dashboard() {
   const dispatch = useDispatch();
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(6);
 
-  const { data: dashboardData } = useGetDashboardDataQuery({
+  const { data: dashboardData, isLoading } = useGetDashboardDataQuery({
     page: currentPage,
     limit: perPage
   });
 
   const [editUser] = useEditUserMutation()
-
 
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -59,18 +187,6 @@ export default function Dashboard() {
       isActive: user.isActive
     }));
   }, []);
-
-  interface ApiEvent {
-    _id: string;
-    court?: {
-      title?: string;
-      address?: string;
-    };
-    startTimestamp: string;
-    endTimestamp: string;
-    playerCount: number;
-    hostId: any;
-  }
 
   const users = React.useMemo(() =>
     transformApiUsers(dashboardData?.recentUsers?.data || []),
@@ -118,7 +234,6 @@ export default function Dashboard() {
     setActiveUser(user);
     setShowUserModal(true);
   };
-
 
   const handleUpdateUser = async(userData: Partial<User>) => {
     if (activeUser) {
@@ -210,6 +325,7 @@ export default function Dashboard() {
       setCurrentPage(page);
     }
   };
+
   return (
     <motion.div
       variants={pageTransition}
@@ -223,14 +339,11 @@ export default function Dashboard() {
           variant="outline"
           className="bg-white dark:bg-gray-800"
           onClick={() => setShowFilterDialog(true)}
+          disabled={isLoading}
         >
           <Filter className="h-4 w-4 mr-2" />
           <span>Filter</span>
         </Button>
-        {/* <Button onClick={handleAddEvent}>
-          <Plus className="h-4 w-4 mr-2" />
-          <span>New Event</span>
-        </Button> */}
       </div>
 
       {/* Filter Dialog */}
@@ -245,41 +358,51 @@ export default function Dashboard() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         variants={staggerContainer}
       >
-        <motion.div variants={slideUp}>
-          <StatsCard
-            title="Total Users"
-            value={dashboardData?.userMetrics?.total.toString() || "0"}
-            icon="users"
-            change={dashboardData?.userMetrics?.growthPercentage || 0}
-          />
-        </motion.div>
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <motion.div key={i} variants={slideUp}>
+              <StatsSkeleton />
+            </motion.div>
+          ))
+        ) : (
+          <>
+            <motion.div variants={slideUp}>
+              <StatsCard
+                title="Total Users"
+                value={dashboardData?.userMetrics?.total.toString() || "0"}
+                icon="users"
+                change={dashboardData?.userMetrics?.growthPercentage || 0}
+              />
+            </motion.div>
 
-        <motion.div variants={slideUp}>
-          <StatsCard
-            title="Active Courts"
-            value={dashboardData?.courtMetrics?.total.toString() || "0"}
-            icon="courts"
-            change={dashboardData?.courtMetrics?.growthPercentage || 0}
-          />
-        </motion.div>
+            <motion.div variants={slideUp}>
+              <StatsCard
+                title="Active Courts"
+                value={dashboardData?.courtMetrics?.total.toString() || "0"}
+                icon="courts"
+                change={dashboardData?.courtMetrics?.growthPercentage || 0}
+              />
+            </motion.div>
 
-        <motion.div variants={slideUp}>
-          <StatsCard
-            title="Events Today"
-            value={dashboardData?.gameMetrics?.totalToday.toString() || "0"}
-            icon="events"
-            change={dashboardData?.gameMetrics?.growthPercentage || 0}
-          />
-        </motion.div>
+            <motion.div variants={slideUp}>
+              <StatsCard
+                title="Events Today"
+                value={dashboardData?.gameMetrics?.totalToday.toString() || "0"}
+                icon="events"
+                change={dashboardData?.gameMetrics?.growthPercentage || 0}
+              />
+            </motion.div>
 
-        <motion.div variants={slideUp}>
-          <StatsCard
-            title="Average Rating"
-            value={dashboardData?.courtMetrics?.avgRating.toString() || "0"}
-            icon="rating"
-            change={((dashboardData?.courtMetrics?.avgRating || 0) - (dashboardData?.courtMetrics?.avgRatingLastMonth || 0)) * 100}
-          />
-        </motion.div>
+            <motion.div variants={slideUp}>
+              <StatsCard
+                title="Average Rating"
+                value={dashboardData?.courtMetrics?.avgRating.toString() || "0"}
+                icon="rating"
+                change={((dashboardData?.courtMetrics?.avgRating || 0) - (dashboardData?.courtMetrics?.avgRatingLastMonth || 0)) * 100}
+              />
+            </motion.div>
+          </>
+        )}
       </motion.div>
 
       {/* Recent Users Section */}
@@ -287,99 +410,136 @@ export default function Dashboard() {
         <CardHeader className="p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex justify-between items-center">
             <CardTitle>Recent Users</CardTitle>
-            <div className="flex space-x-2">
-              <Button
-                variant={viewMode === "table" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("table")}
-                className="px-3 py-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="3" y1="9" x2="21" y2="9"></line>
-                  <line x1="3" y1="15" x2="21" y2="15"></line>
-                  <line x1="9" y1="3" x2="9" y2="21"></line>
-                  <line x1="15" y1="3" x2="15" y2="21"></line>
-                </svg>
-              </Button>
-              <Button
-                variant={viewMode === "card" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("card")}
-                className="px-3 py-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="14" width="7" height="7"></rect>
-                  <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
-              </Button>
-            </div>
+            {!isLoading && (
+              <div className="flex space-x-2">
+                <Button
+                  variant={viewMode === "table" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="px-3 py-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="3" y1="15" x2="21" y2="15"></line>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                    <line x1="15" y1="3" x2="15" y2="21"></line>
+                  </svg>
+                </Button>
+                <Button
+                  variant={viewMode === "card" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("card")}
+                  className="px-3 py-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                  </svg>
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
 
-        {viewMode === "table" ? (
-          <UserTable
-            users={filteredUsers}
-            onEdit={handleEditUser}
-            onToggleStatus={handleToggleUserStatus}
-            onDelete={handleDeleteUser}
-          />
+        {isLoading ? (
+          viewMode === "table" ? (
+            <UserTableSkeleton />
+          ) : (
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <UserCardSkeleton key={i} />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredUsers.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
+          <>
+            {viewMode === "table" ? (
+              <UserTable
+                users={filteredUsers}
                 onEdit={handleEditUser}
-                onToggleStatus={() => handleToggleUserStatus(user)}
-                onDelete={() => handleDeleteUser(user)}
+                onToggleStatus={handleToggleUserStatus}
+                onDelete={handleDeleteUser}
               />
-            ))}
-          </div>
+            ) : (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredUsers.map((user) => (
+                  <UserCard
+                    key={user.id}
+                    user={user}
+                    onEdit={handleEditUser}
+                    onToggleStatus={() => handleToggleUserStatus(user)}
+                    onDelete={() => handleDeleteUser(user)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         <CardContent className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-          <p className="text-sm text-textLight dark:text-gray-400">Showing {filteredUsers.length} of {users.length} users</p>
-          <div className="flex space-x-1">
-            <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400" onClick={() => handlePageChange(currentPage - 1)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </Button>
-            {[...Array(totalPages)].map((_, index) => (
-              <Button
-                key={index}
-                variant={currentPage === index + 1 ? "default" : "outline"}
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </Button>
-            ))}
-            <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400" onClick={() => handlePageChange(currentPage + 1)}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </Button>
-          </div>
+          {isLoading ? (
+            <div className="flex justify-between items-center w-full">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+              <div className="flex space-x-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-textLight dark:text-gray-400">Showing {filteredUsers.length} of {users.length} users</p>
+              <div className="flex space-x-1">
+                <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400" onClick={() => handlePageChange(currentPage - 1)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </Button>
+                {[...Array(totalPages)].map((_, index) => (
+                  <Button
+                    key={index}
+                    variant={currentPage === index + 1 ? "default" : "outline"}
+                    size="icon"
+                    className="w-8 h-8"
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+                <Button variant="outline" size="icon" className="w-8 h-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-textLight dark:text-gray-400" onClick={() => handlePageChange(currentPage + 1)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
       {/* Calendar & Upcoming Events */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <CalendarView events={events} onEventClick={handleEventClick} />
+          {isLoading ? (
+            <CalendarSkeleton />
+          ) : (
+            <CalendarView events={events} onEventClick={handleEventClick} />
+          )}
         </div>
 
         <div>
-          <UpcomingEvents
-            events={events}
-            onEventClick={handleEventClick}
-            onAddEvent={handleAddEvent}
-          />
+          {isLoading ? (
+            <UpcomingEventsSkeleton />
+          ) : (
+            <UpcomingEvents
+              events={events}
+              onEventClick={handleEventClick}
+              onAddEvent={handleAddEvent}
+            />
+          )}
         </div>
       </div>
 

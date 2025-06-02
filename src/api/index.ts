@@ -128,6 +128,19 @@ export const apis = createApi({
             }),
             invalidatesTags:["COURT_M"]
           }),
+        getAdminDetails: builder.query<any, any>({
+            query: () => ({
+              url: `/dashboard/admin-detail`,
+              method: 'GET'
+            }),
+          }),
+          updateAdminPassword: builder.mutation<any, any>({
+            query: (body) => ({
+              url: `/dashboard/update-password`,
+              method: 'POST',
+              body
+            })
+          }),  
           addCourt: builder.mutation<any, any>({
             query: (body) => ({
               url: `/court`,
@@ -147,4 +160,6 @@ export const apis = createApi({
     }),
 });
 
-export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery , useGetCourtsQuery, useDeleteCourtMutation,useAddCourtMutation,useUpdateCourtMutation} = apis;
+export const { useAdminLoginMutation, useGetUserDetailsQuery, useUserLogoutMutation, useGetDashboardDataQuery, useGetUserDatamanagementQuery, useDeleteSuspendUserMutation, useEditUserMutation, useGetGroupDataQuery,useDeleteGroupMutation,useEditGroupMutation,useGetGameEventsQuery , useGetCourtsQuery, useDeleteCourtMutation,useAddCourtMutation,useUpdateCourtMutation,
+    useGetAdminDetailsQuery,useUpdateAdminPasswordMutation
+} = apis;

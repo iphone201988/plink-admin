@@ -86,7 +86,7 @@ export function CourtModal({ isOpen, onClose, onSubmit, court, edit }: CourtModa
 
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyC1BydibI3lXzAZ2xMpSK7C8pLQyjx9IeY",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY||"AIzaSyA5Zh7DmkEx1DE1IyfVABbXpM-8zZYN9G8",
     libraries,
   });
 
@@ -149,6 +149,10 @@ export function CourtModal({ isOpen, onClose, onSubmit, court, edit }: CourtModa
   };
 
   const handleSubmit = async (values: CourtFormValues) => {
+        console.log("hello2");
+
+        
+
     const formData = new FormData();
 
     // Append form values to FormData
@@ -177,6 +181,7 @@ export function CourtModal({ isOpen, onClose, onSubmit, court, edit }: CourtModa
     try {
       // Assuming addCourt is configured to handle FormData
       if (edit) {
+        console.log("hello2");
         await updateCourt({
           id:court?.id,
           body:formData

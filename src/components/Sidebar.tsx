@@ -41,10 +41,10 @@ export function Sidebar() {
     { path: "/admin/groups", label: "Group Management", icon: <Layers className="w-5 h-5 mr-3" /> },
     { path: "/admin/calendar", label: "Calendar", icon: <Calendar className="w-5 h-5 mr-3" /> },
     { path: "/admin/courts", label: "Court Management", icon: <Volleyball className="w-5 h-5 mr-3" /> },
-    { path: "/admin/availability", label: "Availability", icon: <Clock className="w-5 h-5 mr-3" /> },
-    { path: "/admin/static-pages", label: "Static Pages", icon: <FileText className="w-5 h-5 mr-3" /> },
-    { path: "/admin/ratings", label: "Ratings", icon: <Star className="w-5 h-5 mr-3" /> },
-    { path: "/admin/notifications", label: "Notifications", icon: <Bell className="w-5 h-5 mr-3" /> },
+    // { path: "/admin/availability", label: "Availability", icon: <Clock className="w-5 h-5 mr-3" /> },
+    // { path: "/admin/static-pages", label: "Static Pages", icon: <FileText className="w-5 h-5 mr-3" /> },
+    // { path: "/admin/ratings", label: "Ratings", icon: <Star className="w-5 h-5 mr-3" /> },
+    // { path: "/admin/notifications", label: "Notifications", icon: <Bell className="w-5 h-5 mr-3" /> },
     { path: "/admin/settings", label: "Settings", icon: <Settings className="w-5 h-5 mr-3" /> }
   ];
 
