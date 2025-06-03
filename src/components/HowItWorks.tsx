@@ -26,18 +26,18 @@ const HowItWorks = () => {
    <div className=" flex gap-[24px] justify-center flex-wrap">
      <div className=" bg-white rounded-[16px] p-[24px] max-w-[420px]">
         <img className='w-[40px] mb-[6px]' src={icon_1} alt="" />
-        <h4 className='text-[24px] font-bold'>Create a Session</h4>
-        <p className='text-[18px]'>Create your game, complete with confirmed players and skill ratings.</p>
+        <h4 className='text-[24px] font-bold text-gray-900'>Create a Session</h4>
+        <p className='text-[18px] text-gray-600'>Create your game, complete with confirmed players and skill ratings.</p>
     </div>
      <div className=" bg-white rounded-[16px] p-[24px] max-w-[420px]">
         <img className='w-[40px] mb-[6px]' src={icon_2} alt="" />
-        <h4 className='text-[24px] font-bold'>Share the Link</h4>
-        <p className='text-[18px]'>Send an invite to your friend you want to play with.</p>
+        <h4 className='text-[24px] font-bold  text-gray-900'>Share the Link</h4>
+        <p className='text-[18px] text-gray-600'>Send an invite to your friend you want to play with.</p>
     </div>
      <div className=" bg-white rounded-[16px] p-[24px] max-w-[420px]">
         <img className='w-[40px] mb-[6px]' src={icon_1} alt="" />
-        <h4 className='text-[24px] font-bold'>Fill Your Game</h4>
-        <p className='text-[18px]'>Gather responses and hit the court! We’ll automatically maintain a waitlist in case someone bails.</p>
+        <h4 className='text-[24px] font-bold text-gray-900'>Fill Your Game</h4>
+        <p className='text-[18px] text-gray-600'>Gather responses and hit the court! We'll automatically maintain a waitlist in case someone bails.</p>
     </div>
    </div>
 
