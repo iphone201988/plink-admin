@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Dashboard from "@/pages/Dashboard";
 import UserManagement from "@/pages/UserManagement";
 import GroupManagement from "@/pages/GroupManagement";
@@ -69,6 +69,15 @@ const router = createBrowserRouter([
       }
     ]
   },
+  {
+    path: "/g/*",
+    element: <Navigate to="/" replace />
+  },
+  {
+    path: "/c/*",
+    element: <Navigate to="/" replace />
+  },
+
   {
     path: "/",
     element:
