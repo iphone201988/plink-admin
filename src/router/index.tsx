@@ -1,21 +1,23 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import Dashboard from "@/pages/Dashboard";
-import UserManagement from "@/pages/UserManagement";
-import GroupManagement from "@/pages/GroupManagement";
-import Calendar from "@/pages/Calendar";
-import CourtManagement from "@/pages/CourtManagement";
-import Availability from "@/pages/Availability";
-import StaticPages from "@/pages/StaticPages";
-import Ratings from "@/pages/Ratings";
-import Notifications from "@/pages/Notifications";
-import Settings from "@/pages/Settings";
-import Login from "@/pages/Login";
-import NotFound from "@/pages/not-found";
+import { lazy, Suspense } from "react";
 import PrivateRoute from "@/components/PrivateRoute";
-import Landing from "@/pages/Landing";
 import PublicRoute from "@/components/PublicRoute";
 import App from "@/App";
-
+import Loader from "@/components/Loader/Loader";
+// Lazy-loaded components
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const UserManagement = lazy(() => import("@/pages/UserManagement"));
+const GroupManagement = lazy(() => import("@/pages/GroupManagement"));
+const Calendar = lazy(() => import("@/pages/Calendar"));
+const CourtManagement = lazy(() => import("@/pages/CourtManagement"));
+const Availability = lazy(() => import("@/pages/Availability"));
+const StaticPages = lazy(() => import("@/pages/StaticPages"));
+const Ratings = lazy(() => import("@/pages/Ratings"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Login = lazy(() => import("@/pages/Login"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Landing = lazy(() => import("@/pages/Landing"));
 
 const router = createBrowserRouter([
   {
@@ -29,77 +31,122 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         index: true,
-        element: <Dashboard />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Dashboard />
+          </Suspense>
+        ),
       },
       {
         path: "users",
-        element: <UserManagement />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <UserManagement />
+          </Suspense>
+        ),
       },
       {
         path: "groups",
-        element: <GroupManagement />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <GroupManagement />
+          </Suspense>
+        ),
       },
       {
         path: "calendar",
-        element: <Calendar />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Calendar />
+          </Suspense>
+        ),
       },
       {
         path: "courts",
-        element: <CourtManagement />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <CourtManagement />
+          </Suspense>
+        ),
       },
       {
         path: "availability",
-        element: <Availability />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Availability />
+          </Suspense>
+        ),
       },
       {
         path: "static-pages",
-        element: <StaticPages />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <StaticPages />
+          </Suspense>
+        ),
       },
       {
         path: "ratings",
-        element: <Ratings />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Ratings />
+          </Suspense>
+        ),
       },
       {
         path: "notifications",
-        element: <Notifications />
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Notifications />
+          </Suspense>
+        ),
       },
       {
         path: "settings",
-        element: <Settings />
-      }
-    ]
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Settings />
+          </Suspense>
+        ),
+      },
+    ],
   },
   {
     path: "/g/*",
-    element: <Navigate to="/" replace />
+    element: <Navigate to="/" replace />,
   },
   {
-    path: "/c/*",
-    element: <Navigate to="/" replace />
+    path: "c/*",
+    element: <Navigate to="/" replace />,
   },
-
   {
     path: "/",
-    element:
-      (
-        <PublicRoute>
+    element: (
+      <PublicRoute>
+        <Suspense fallback={<Loader />}>
           <Landing />
-        </PublicRoute>
-      )
+        </Suspense>
+      </PublicRoute>
+    ),
   },
   {
     path: "/admin/login",
     element: (
       <PublicRoute>
-        <Login />
+        <Suspense fallback={<Loader />}>
+          <Login />
+        </Suspense>
       </PublicRoute>
-    )
+    ),
   },
   {
     path: "*",
-    element: <NotFound />
-  }
+    element: (
+      <Suspense fallback={<Loader />}>
+        <NotFound />
+      </Suspense>
+    ),
+  },
 ]);
-
 
 export default router;
